@@ -112,7 +112,9 @@ template = template
   .replace(
     '@media (max-width: 560px) {',
     '@media (max-width: 720px) {\n  .nav { display: none; }\n}\n@media (max-width: 560px) {'
-  );
+  )
+  // Use the full legal entity name in the copyright line.
+  .replace('© 2026 Sepulka</div>', '© 2026 Sepulka S.R.L.</div>');
 
 await writeFile(path.join(OUT, 'index.html'), template);
 
