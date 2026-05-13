@@ -101,8 +101,8 @@ template = template
 
 await writeFile(path.join(OUT, 'index.html'), template);
 
-// GitHub Pages: skip Jekyll. CNAME for shoutparty.com is intentionally
-// not written here — re-add once Dynadot DNS points at GitHub Pages.
+// GitHub Pages: custom domain + skip Jekyll processing.
+await writeFile(path.join(OUT, 'CNAME'), 'shoutparty.com\n');
 await writeFile(path.join(OUT, '.nojekyll'), '');
 
-console.log('Wrote docs/index.html, .nojekyll');
+console.log('Wrote docs/index.html, CNAME, .nojekyll');
