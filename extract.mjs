@@ -106,6 +106,12 @@ template = template
   .replace(
     /\.nav-inner \{\s*display: flex;\s*align-items: center;\s*justify-content: space-between;\s*padding: 18px 0;\s*\}/,
     '.nav-inner {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  padding-top: 18px;\n  padding-bottom: 18px;\n}'
+  )
+  // Hide the sticky nav on phones — the hero already exposes the logo + Play
+  // Store CTA, so the header is redundant and eats vertical space.
+  .replace(
+    '@media (max-width: 560px) {',
+    '@media (max-width: 720px) {\n  .nav { display: none; }\n}\n@media (max-width: 560px) {'
   );
 
 await writeFile(path.join(OUT, 'index.html'), template);
