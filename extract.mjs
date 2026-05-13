@@ -99,7 +99,14 @@ template = template
     `<a class="gp-badge" href="${PLAY_URL}" target="_blank" rel="noopener" aria-label="Get it on Google Play">`
   )
   // Drop the exact app-size claim — package may change. Keep the "small download" vibe.
-  .replace('<span>~3.7 MB</span>', '<span>Tiny download</span>');
+  .replace('<span>~3.7 MB</span>', '<span>Tiny download</span>')
+  // .nav-inner is on the same element as .container; its shorthand `padding: 18px 0`
+  // overrides .container's horizontal padding, so the header sits flush to the
+  // screen edge on mobile. Use longhand to preserve container padding.
+  .replace(
+    /\.nav-inner \{\s*display: flex;\s*align-items: center;\s*justify-content: space-between;\s*padding: 18px 0;\s*\}/,
+    '.nav-inner {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  padding-top: 18px;\n  padding-bottom: 18px;\n}'
+  );
 
 await writeFile(path.join(OUT, 'index.html'), template);
 
