@@ -97,7 +97,9 @@ template = template
   .replace(
     /<a class="gp-badge" href="#(?:download)?" aria-label="Get it on Google Play">/g,
     `<a class="gp-badge" href="${PLAY_URL}" target="_blank" rel="noopener" aria-label="Get it on Google Play">`
-  );
+  )
+  // Drop the exact app-size claim — package may change. Keep the "small download" vibe.
+  .replace('<span>~3.7 MB</span>', '<span>Tiny download</span>');
 
 await writeFile(path.join(OUT, 'index.html'), template);
 
