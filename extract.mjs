@@ -125,8 +125,13 @@ template = template
     '@media (max-width: 560px) {',
     '@media (max-width: 720px) {\n  .nav { display: none; }\n}\n@media (max-width: 560px) {'
   )
-  // Use the full legal entity name in the copyright line.
-  .replace('© 2026 Sepulka</div>', '© 2026 Sepulka S.R.L.</div>');
+  // Operator identification line (Romanian Law 365/2002): full legal entity,
+  // city/country, CUI (fiscal code), and contact email — required for EU
+  // commercial operators identifying themselves to consumers.
+  .replace(
+    '© 2026 Sepulka</div>',
+    '© 2026 SEPULKA S.R.L. · Bucharest, Romania · CUI 50254340 · <a href="mailto:contact@sepulka.cc">contact@sepulka.cc</a></div>'
+  );
 
 await writeFile(path.join(OUT, 'index.html'), template);
 
