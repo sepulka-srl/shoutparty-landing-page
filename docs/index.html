@@ -549,6 +549,10 @@ section { position: relative; z-index: 1; padding: 100px 0; }
 .faq-item summary::after { content: "+"; color: var(--mint); font-size: 26px; font-weight: 400; line-height: 1; transition: transform 0.2s ease; }
 .faq-item[open] summary::after { transform: rotate(45deg); }
 .faq-item p { margin: -4px 4px 24px; color: var(--text-mute); font-size: 15px; line-height: 1.65; }
+/* Official Play badge replaces the recreated button: strip the old chrome, show only the artwork. */
+.gp-badge { background: none !important; border: 0 !important; padding: 0 !important; box-shadow: none !important; }
+.gp-badge:hover { box-shadow: none !important; }
+.gp-badge img { display: block; height: 62px; width: auto; }
 .section-eyebrow {
   font-size: 12px;
   letter-spacing: 0.22em;
@@ -852,33 +856,7 @@ section { position: relative; z-index: 1; padding: 100px 0; }
           Six game modes, 1,500 words per language, 29 languages — all on a tiny offline app.
         </p>
         <div class="hero-actions">
-          <a class="gp-badge" href="https://play.google.com/store/apps/details?id=com.sepulka.shoutparty&referrer=utm_source%3Dshoutparty.com%26utm_medium%3Dreferral%26utm_campaign%3Dlanding%26utm_content%3Dbadge" target="_blank" rel="noopener" aria-label="Get it on Google Play">
-            <svg class="gp-icon" viewBox="0 0 32 32" aria-hidden="true">
-              <defs>
-                <linearGradient id="gp1" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0" stop-color="#3FE5C2"></stop><stop offset="1" stop-color="#1B9A7E"></stop>
-                </linearGradient>
-                <linearGradient id="gp2" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0" stop-color="#FFB89A"></stop><stop offset="1" stop-color="#FF7A4D"></stop>
-                </linearGradient>
-                <linearGradient id="gp3" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0" stop-color="#F5C84A"></stop><stop offset="1" stop-color="#E5A019"></stop>
-                </linearGradient>
-                <linearGradient id="gp4" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0" stop-color="#FF3B6B"></stop><stop offset="1" stop-color="#C5234E"></stop>
-                </linearGradient>
-              </defs>
-              <!-- four-color play wedge -->
-              <path d="M6 3.5 L19 15.6 L6 27.7 Z" fill="url(#gp1)"></path>
-              <path d="M6 3.5 L26.7 14.6 L19 15.6 Z" fill="url(#gp2)"></path>
-              <path d="M19 15.6 L26.7 14.6 L26.7 16.6 Z" fill="url(#gp3)" opacity=".9"></path>
-              <path d="M6 27.7 L19 15.6 L26.7 16.6 Z" fill="url(#gp4)"></path>
-            </svg>
-            <span class="gp-text">
-              <small>GET IT ON</small>
-              <span>Google Play</span>
-            </span>
-          </a>
+          <a class="gp-badge" href="https://play.google.com/store/apps/details?id=com.sepulka.shoutparty&referrer=utm_source%3Dshoutparty.com%26utm_medium%3Dreferral%26utm_campaign%3Dlanding%26utm_content%3Dbadge" target="_blank" rel="noopener"><img src="assets/google-play-badge.png" alt="Get it on Google Play" width="160" height="62"></a>
           <div class="hero-meta">
             <span>Tiny download</span>
             <span class="sep"></span>
@@ -1075,24 +1053,7 @@ section { position: relative; z-index: 1; padding: 100px 0; }
       <div class="cta-card reveal">
         <h2>Get the room <span class="accent">loud.</span></h2>
         <p>Free, offline, no ads. Install Shout Party and start your next round in under a minute.</p>
-        <a class="gp-badge" href="https://play.google.com/store/apps/details?id=com.sepulka.shoutparty&referrer=utm_source%3Dshoutparty.com%26utm_medium%3Dreferral%26utm_campaign%3Dlanding%26utm_content%3Dbadge" target="_blank" rel="noopener" aria-label="Get it on Google Play">
-          <svg class="gp-icon" viewBox="0 0 32 32" aria-hidden="true">
-            <defs>
-              <linearGradient id="cgp1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3FE5C2"></stop><stop offset="1" stop-color="#1B9A7E"></stop></linearGradient>
-              <linearGradient id="cgp2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFB89A"></stop><stop offset="1" stop-color="#FF7A4D"></stop></linearGradient>
-              <linearGradient id="cgp3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F5C84A"></stop><stop offset="1" stop-color="#E5A019"></stop></linearGradient>
-              <linearGradient id="cgp4" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF3B6B"></stop><stop offset="1" stop-color="#C5234E"></stop></linearGradient>
-            </defs>
-            <path d="M6 3.5 L19 15.6 L6 27.7 Z" fill="url(#cgp1)"></path>
-            <path d="M6 3.5 L26.7 14.6 L19 15.6 Z" fill="url(#cgp2)"></path>
-            <path d="M19 15.6 L26.7 14.6 L26.7 16.6 Z" fill="url(#cgp3)" opacity=".9"></path>
-            <path d="M6 27.7 L19 15.6 L26.7 16.6 Z" fill="url(#cgp4)"></path>
-          </svg>
-          <span class="gp-text">
-            <small>GET IT ON</small>
-            <span>Google Play</span>
-          </span>
-        </a>
+        <a class="gp-badge" href="https://play.google.com/store/apps/details?id=com.sepulka.shoutparty&referrer=utm_source%3Dshoutparty.com%26utm_medium%3Dreferral%26utm_campaign%3Dlanding%26utm_content%3Dbadge" target="_blank" rel="noopener"><img src="assets/google-play-badge.png" alt="Get it on Google Play" width="160" height="62"></a>
       </div>
     </div>
   </section>

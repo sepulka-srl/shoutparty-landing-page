@@ -184,7 +184,11 @@ template = template.replace(SECTION_RULE, SECTION_RULE + `
 .faq-item summary::-webkit-details-marker { display: none; }
 .faq-item summary::after { content: "+"; color: var(--mint); font-size: 26px; font-weight: 400; line-height: 1; transition: transform 0.2s ease; }
 .faq-item[open] summary::after { transform: rotate(45deg); }
-.faq-item p { margin: -4px 4px 24px; color: var(--text-mute); font-size: 15px; line-height: 1.65; }`);
+.faq-item p { margin: -4px 4px 24px; color: var(--text-mute); font-size: 15px; line-height: 1.65; }
+/* Official Play badge replaces the recreated button: strip the old chrome, show only the artwork. */
+.gp-badge { background: none !important; border: 0 !important; padding: 0 !important; box-shadow: none !important; }
+.gp-badge:hover { box-shadow: none !important; }
+.gp-badge img { display: block; height: 62px; width: auto; }`);
 
 // Structured data: MobileApplication + FAQPage, injected before </body>.
 // No aggregateRating block — only add one with real Play Console numbers.
@@ -238,9 +242,14 @@ template = template
     '<a class="nav-cta" href="#download" aria-label="Get on Google Play">',
     `<a class="nav-cta" href="${playUrl('nav')}" target="_blank" rel="noopener" aria-label="Get on Google Play">`
   )
+  // Swap the recreated Play badge (custom-coloured wedge + "Google Play" text —
+  // against Google's brand guidelines, which require the official artwork) for
+  // Google's official badge image. Both badge instances share identical markup,
+  // so one global replace of the whole <a>…</a> element covers them.
   .replace(
-    /<a class="gp-badge" href="#(?:download)?" aria-label="Get it on Google Play">/g,
-    `<a class="gp-badge" href="${playUrl('badge')}" target="_blank" rel="noopener" aria-label="Get it on Google Play">`
+    /<a class="gp-badge"[\s\S]*?<\/a>/g,
+    `<a class="gp-badge" href="${playUrl('badge')}" target="_blank" rel="noopener">` +
+      `<img src="assets/google-play-badge.png" alt="Get it on Google Play" width="160" height="62"></a>`
   )
   // Drop the exact app-size claim — package may change. Keep the "small download" vibe.
   .replace('<span>~3.7 MB</span>', '<span>Tiny download</span>')
@@ -371,6 +380,11 @@ await writeFile(path.join(ASSETS, 'Manrope-OFL.txt'), MANROPE_OFL);
 // each run, so the committed PNG is copied in from static/ rather than living
 // under docs/ directly.
 await copyFile(path.join(STATIC, 'og-image.png'), path.join(ASSETS, 'og-image.png'));
+
+// Official "Get it on Google Play" badge artwork (Google brand guidelines require
+// the official badge, not a recreation). Committed in static/, copied in like
+// og-image because docs/ is wiped each run.
+await copyFile(path.join(STATIC, 'google-play-badge.png'), path.join(ASSETS, 'google-play-badge.png'));
 
 // Crawl directives. sitemap <lastmod> is refreshed to the build date each run.
 const today = new Date().toISOString().slice(0, 10);
