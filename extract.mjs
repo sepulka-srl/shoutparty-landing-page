@@ -1,7 +1,7 @@
 // Extract a Claude Design bundle.html into a static site:
 //   - assets/<id>.<ext> for each binary asset
 //   - index.html with template content + UUID placeholders rewritten to assets/ paths
-import { readFile, writeFile, mkdir, rm } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, rm, copyFile } from 'node:fs/promises';
 import { gunzipSync } from 'node:zlib';
 import path from 'node:path';
 
@@ -9,6 +9,7 @@ const ROOT = path.dirname(new URL(import.meta.url).pathname);
 const BUNDLE = path.join(ROOT, 'shout-party-landing.bundle.html');
 const OUT = path.join(ROOT, 'docs');
 const ASSETS = path.join(OUT, 'assets');
+const STATIC = path.join(ROOT, 'static');
 
 const html = await readFile(BUNDLE, 'utf8');
 
@@ -90,6 +91,132 @@ template = template.replace(
   '<style>/* Manrope © 2018 The Manrope Project Authors, SIL OFL 1.1 — see assets/Manrope-OFL.txt */\n/* cyrillic-ext */'
 );
 
+// --- SEO --------------------------------------------------------------------
+// docs/ is regenerated from scratch on every run, so all SEO markup is applied
+// here as template transforms (plus the file writes below) rather than being
+// hand-edited into docs/index.html. Rationale: docs/site_seo_suggestions.md.
+
+// Canonical + Open Graph + Twitter Card, injected after the description meta.
+// og:image is the share card authored in static/og-image.svg and copied into
+// docs/assets/ further down.
+const DESC_META = '<meta name="description" content="Shout Party is the word-guessing party game for friends and family. Six game modes, 1,500 words per language, 29 languages. Free on Google Play. No ads, no accounts, plays offline.">';
+if (!template.includes(DESC_META)) throw new Error('description meta not found — bundle head changed');
+template = template.replace(DESC_META, DESC_META + `
+<link rel="canonical" href="https://shoutparty.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Shout Party">
+<meta property="og:title" content="Shout Party — The word-guessing party game">
+<meta property="og:description" content="The word-guessing party game for friends and family. Six game modes, 1,500 words per language, 29 languages. Free on Google Play — no ads, no accounts, plays offline.">
+<meta property="og:url" content="https://shoutparty.com/">
+<meta property="og:image" content="https://shoutparty.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Shout Party — neon party-game wordmark">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Shout Party — The word-guessing party game">
+<meta name="twitter:description" content="Six game modes, 1,500 words per language, 29 languages. Free on Google Play — no ads, no accounts, plays offline.">
+<meta name="twitter:image" content="https://shoutparty.com/assets/og-image.png">
+<meta name="twitter:image:alt" content="Shout Party — neon party-game wordmark">`);
+
+// Descriptive image alt text for the screenshot strip (was "Home", "Teams"…).
+for (const [from, to] of [
+  ['alt="Home"', 'alt="Shout Party home screen with game-mode selection"'],
+  ['alt="Teams"', 'alt="Setting up teams in Shout Party"'],
+  ['alt="Modes"', 'alt="Shout Party game-mode picker"'],
+  ['alt="In-game"', 'alt="Shout Party in-game word card during a round"'],
+  ['alt="Drawing"', 'alt="Draw and Act mode in Shout Party"'],
+  ['alt="Round result"', 'alt="Shout Party round recap of words guessed and passed"'],
+  ['alt="Game over"', 'alt="Shout Party final scoreboard"'],
+  ['alt="Privacy"', 'alt="Shout Party privacy settings screen"'],
+]) {
+  if (!template.includes(from)) throw new Error(`alt text not found: ${from}`);
+  template = template.replace(from, to);
+}
+
+// FAQ — visible accordion plus matching FAQPage JSON-LD. The Q&A pairs are
+// defined once and drive both, so the structured data can't drift from copy.
+const FAQ = [
+  ['Is Shout Party free?',
+   'Yes — Shout Party is free on Google Play. There are no ads and no in-app purchases.'],
+  ['Do I need an internet connection to play?',
+   'No. Shout Party plays fully offline after installation; the word decks live on your device.'],
+  ['How many players do I need?',
+   'Shout Party works with two or more teams, so it fits anything from a couple of friends to a full room.'],
+  ['What languages does Shout Party support?',
+   'It ships in 29 languages, each with its own 1,500-word deck — pick a language and the whole game follows.'],
+  ['Do I need to create an account?',
+   'No. There is no account, no sign-up and no personal data required to play.'],
+  ['Is Shout Party suitable for families?',
+   'Yes. The word list is family-friendly, so it suits game nights with kids and grown-ups alike.'],
+  ['What is High Stakes mode?',
+   'High Stakes is a simulated bet round: teams wager points they have already earned. No real money or real currency is involved.'],
+];
+
+const faqItems = FAQ.map(([q, a]) =>
+  `      <details class="faq-item">\n        <summary>${q}</summary>\n        <p>${a}</p>\n      </details>`
+).join('\n');
+const faqSection = `
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="container">
+      <div class="section-head reveal">
+        <div class="section-eyebrow">Good to know</div>
+        <h2 class="section-title">Questions, answered.</h2>
+      </div>
+      <div class="faq-list reveal">
+${faqItems}
+      </div>
+    </div>
+  </section>
+
+`;
+if (!template.includes('<footer class="footer">')) throw new Error('footer anchor not found');
+template = template.replace('<footer class="footer">', faqSection + '<footer class="footer">');
+
+// FAQ accordion styling, appended to the main stylesheet.
+const SECTION_RULE = 'section { position: relative; z-index: 1; padding: 100px 0; }';
+if (!template.includes(SECTION_RULE)) throw new Error('section CSS rule not found');
+template = template.replace(SECTION_RULE, SECTION_RULE + `
+.faq-list { max-width: 760px; margin: 52px auto 0; }
+.faq-item { border-bottom: 1px solid var(--border); }
+.faq-item summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 24px 4px; font-size: 18px; font-weight: 600; color: var(--text); }
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after { content: "+"; color: var(--mint); font-size: 26px; font-weight: 400; line-height: 1; transition: transform 0.2s ease; }
+.faq-item[open] summary::after { transform: rotate(45deg); }
+.faq-item p { margin: -4px 4px 24px; color: var(--text-mute); font-size: 15px; line-height: 1.65; }`);
+
+// Structured data: MobileApplication + FAQPage, injected before </body>.
+// No aggregateRating block — only add one with real Play Console numbers.
+const appLd = {
+  '@context': 'https://schema.org',
+  '@type': 'MobileApplication',
+  name: 'Shout Party',
+  operatingSystem: 'Android',
+  applicationCategory: 'GameApplication',
+  applicationSubCategory: 'Party Game',
+  url: 'https://shoutparty.com/',
+  downloadUrl: 'https://play.google.com/store/apps/details?id=com.sepulka.shoutparty',
+  description: 'Shout Party is the word-guessing party game for friends and family. Six game modes, 1,500 words per language, 29 languages. Free, offline, no ads, no accounts.',
+  inLanguage: ['en','ru','uk','de','fr','es','it','pl','pt','nl','cs','sk','hu','ro','bg','hr','sr','sv','da','no','fi','tr','he','hi','id','zh','ja','ko','ar'],
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  publisher: { '@type': 'Organization', name: 'SEPULKA S.R.L.' },
+};
+const faqLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: FAQ.map(([q, a]) => ({
+    '@type': 'Question',
+    name: q,
+    acceptedAnswer: { '@type': 'Answer', text: a },
+  })),
+};
+// Escape any "</" so the JSON can't break out of the <script> element.
+const ldScript = (obj) =>
+  `<script type="application/ld+json">\n${JSON.stringify(obj, null, 2).split('</').join('<\\/')}\n</script>`;
+template = template.replace('</body></html>',
+  `${ldScript(appLd)}\n${ldScript(faqLd)}\n</body></html>`);
+
 // Build __resources object so any code reading window.__resources still works.
 const resourceMap = {};
 for (const e of extResources) {
@@ -100,15 +227,20 @@ template = template.replace(/<head[^>]*>/i, (m) => m + resourceScript);
 
 // Wire Play Store CTAs. The generated bundle uses href="#" / href="#download"
 // for the three Google Play buttons; point them all at the live listing.
-const PLAY_URL = 'https://play.google.com/store/apps/details?id=com.sepulka.shoutparty';
+// UTM via the Play `referrer` param so Play Console acquisition reports attribute
+// installs that came from the site; utm_content marks which CTA placement converted.
+const playUrl = (content) => {
+  const utm = `utm_source=shoutparty.com&utm_medium=referral&utm_campaign=landing&utm_content=${content}`;
+  return `https://play.google.com/store/apps/details?id=com.sepulka.shoutparty&referrer=${encodeURIComponent(utm)}`;
+};
 template = template
   .replace(
     '<a class="nav-cta" href="#download" aria-label="Get on Google Play">',
-    `<a class="nav-cta" href="${PLAY_URL}" target="_blank" rel="noopener" aria-label="Get on Google Play">`
+    `<a class="nav-cta" href="${playUrl('nav')}" target="_blank" rel="noopener" aria-label="Get on Google Play">`
   )
   .replace(
     /<a class="gp-badge" href="#(?:download)?" aria-label="Get it on Google Play">/g,
-    `<a class="gp-badge" href="${PLAY_URL}" target="_blank" rel="noopener" aria-label="Get it on Google Play">`
+    `<a class="gp-badge" href="${playUrl('badge')}" target="_blank" rel="noopener" aria-label="Get it on Google Play">`
   )
   // Drop the exact app-size claim — package may change. Keep the "small download" vibe.
   .replace('<span>~3.7 MB</span>', '<span>Tiny download</span>')
@@ -233,8 +365,28 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 `;
 await writeFile(path.join(ASSETS, 'Manrope-OFL.txt'), MANROPE_OFL);
 
+// Hand-authored social share card (static/og-image.svg → .png). docs/ is wiped
+// each run, so the committed PNG is copied in from static/ rather than living
+// under docs/ directly.
+await copyFile(path.join(STATIC, 'og-image.png'), path.join(ASSETS, 'og-image.png'));
+
+// Crawl directives. sitemap <lastmod> is refreshed to the build date each run.
+const today = new Date().toISOString().slice(0, 10);
+await writeFile(path.join(OUT, 'robots.txt'),
+  'User-agent: *\nAllow: /\n\nSitemap: https://shoutparty.com/sitemap.xml\n');
+await writeFile(path.join(OUT, 'sitemap.xml'),
+  '<?xml version="1.0" encoding="UTF-8"?>\n' +
+  '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+  '  <url>\n' +
+  '    <loc>https://shoutparty.com/</loc>\n' +
+  `    <lastmod>${today}</lastmod>\n` +
+  '    <changefreq>monthly</changefreq>\n' +
+  '    <priority>1.0</priority>\n' +
+  '  </url>\n' +
+  '</urlset>\n');
+
 // GitHub Pages: custom domain + skip Jekyll processing.
 await writeFile(path.join(OUT, 'CNAME'), 'shoutparty.com\n');
 await writeFile(path.join(OUT, '.nojekyll'), '');
 
-console.log('Wrote docs/index.html, CNAME, .nojekyll');
+console.log('Wrote docs/index.html, og-image, robots.txt, sitemap.xml, CNAME, .nojekyll');

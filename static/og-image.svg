@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="gShout" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#FF7A4D"/>
+      <stop offset="1" stop-color="#FFB89A"/>
+    </linearGradient>
+    <linearGradient id="gParty" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#3FE5C2"/>
+      <stop offset="1" stop-color="#5AF0D2"/>
+    </linearGradient>
+    <radialGradient id="glowOrange" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#FF7A4D" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#FF7A4D" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowMint" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#3FE5C2" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#3FE5C2" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Backdrop -->
+  <rect width="1200" height="630" fill="#0A0A0F"/>
+  <rect width="1200" height="630" fill="url(#glowOrange)" transform="translate(-260 -300) scale(1.4)"/>
+  <rect width="1200" height="630" fill="url(#glowMint)" transform="translate(420 360) scale(1.3)"/>
+  <rect x="8" y="8" width="1184" height="614" rx="28" fill="none" stroke="#FFFFFF" stroke-opacity="0.10" stroke-width="2"/>
+
+  <!-- Confetti -->
+  <circle cx="120" cy="96"  r="7"   fill="#3FE5C2" opacity="0.8"/>
+  <circle cx="1050" cy="78" r="9"   fill="#FF7A4D" opacity="0.8"/>
+  <circle cx="1110" cy="200" r="5"  fill="#F5C84A" opacity="0.7"/>
+  <circle cx="78"  cy="300" r="6"   fill="#FF3B6B" opacity="0.7"/>
+  <circle cx="1130" cy="470" r="7"  fill="#3FE5C2" opacity="0.6"/>
+  <circle cx="150" cy="520" r="9"   fill="#F5C84A" opacity="0.7"/>
+  <circle cx="980" cy="560" r="6"   fill="#FF7A4D" opacity="0.7"/>
+  <circle cx="60"  cy="170" r="4"   fill="#FFFFFF" opacity="0.35"/>
+  <circle cx="1140" cy="330" r="4"  fill="#FFFFFF" opacity="0.3"/>
+  <rect x="240" y="70" width="14" height="14" rx="3" fill="#3FE5C2" opacity="0.7" transform="rotate(24 247 77)"/>
+  <rect x="930" y="150" width="16" height="16" rx="3" fill="#FF3B6B" opacity="0.65" transform="rotate(-18 938 158)"/>
+  <rect x="200" y="470" width="15" height="15" rx="3" fill="#FF7A4D" opacity="0.6" transform="rotate(32 207 477)"/>
+
+  <!-- Wordmark -->
+  <text x="600" y="296" text-anchor="middle"
+        font-family="Helvetica, Arial, sans-serif" font-weight="800"
+        font-size="184" letter-spacing="2" fill="url(#gShout)">SHOUT</text>
+  <text x="608" y="452" text-anchor="middle"
+        font-family="Helvetica, Arial, sans-serif" font-weight="800"
+        font-size="184" letter-spacing="22" fill="url(#gParty)">PARTY</text>
+
+  <!-- Tagline -->
+  <text x="600" y="534" text-anchor="middle"
+        font-family="Helvetica, Arial, sans-serif" font-weight="600"
+        font-size="36" letter-spacing="1" fill="#F4F4F8">The word-guessing party game</text>
+  <text x="600" y="580" text-anchor="middle"
+        font-family="Helvetica, Arial, sans-serif" font-weight="600"
+        font-size="22" letter-spacing="3" fill="#9A9AA8">FREE ON GOOGLE PLAY  ·  NO ADS  ·  PLAYS OFFLINE</text>
+</svg>
