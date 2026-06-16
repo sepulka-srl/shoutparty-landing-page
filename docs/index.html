@@ -4,6 +4,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Shout Party — The word-guessing party game</title>
 <meta name="description" content="Shout Party is the word-guessing party game for friends and family. Six game modes, 1,500 words per language, 29 languages. Free on Google Play. No ads, no accounts, plays offline.">
+<link rel="canonical" href="https://shoutparty.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Shout Party">
+<meta property="og:title" content="Shout Party — The word-guessing party game">
+<meta property="og:description" content="The word-guessing party game for friends and family. Six game modes, 1,500 words per language, 29 languages. Free on Google Play — no ads, no accounts, plays offline.">
+<meta property="og:url" content="https://shoutparty.com/">
+<meta property="og:image" content="https://shoutparty.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Shout Party — neon party-game wordmark">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Shout Party — The word-guessing party game">
+<meta name="twitter:description" content="Six game modes, 1,500 words per language, 29 languages. Free on Google Play — no ads, no accounts, plays offline.">
+<meta name="twitter:image" content="https://shoutparty.com/assets/og-image.png">
+<meta name="twitter:image:alt" content="Shout Party — neon party-game wordmark">
 <style>/* Manrope © 2018 The Manrope Project Authors, SIL OFL 1.1 — see assets/Manrope-OFL.txt */
 /* cyrillic-ext */
 @font-face {
@@ -526,6 +542,13 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 
 /* Sections */
 section { position: relative; z-index: 1; padding: 100px 0; }
+.faq-list { max-width: 760px; margin: 52px auto 0; }
+.faq-item { border-bottom: 1px solid var(--border); }
+.faq-item summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 24px 4px; font-size: 18px; font-weight: 600; color: var(--text); }
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after { content: "+"; color: var(--mint); font-size: 26px; font-weight: 400; line-height: 1; transition: transform 0.2s ease; }
+.faq-item[open] summary::after { transform: rotate(45deg); }
+.faq-item p { margin: -4px 4px 24px; color: var(--text-mute); font-size: 15px; line-height: 1.65; }
 .section-eyebrow {
   font-size: 12px;
   letter-spacing: 0.22em;
@@ -805,7 +828,7 @@ section { position: relative; z-index: 1; padding: 100px 0; }
       <a href="#screens">Screens</a>
       <a href="#features">Features</a>
     </nav>
-    <a class="nav-cta" href="https://play.google.com/store/apps/details?id=com.sepulka.shoutparty" target="_blank" rel="noopener" aria-label="Get on Google Play">
+    <a class="nav-cta" href="https://play.google.com/store/apps/details?id=com.sepulka.shoutparty&referrer=utm_source%3Dshoutparty.com%26utm_medium%3Dreferral%26utm_campaign%3Dlanding%26utm_content%3Dnav" target="_blank" rel="noopener" aria-label="Get on Google Play">
       <svg width="14" height="16" viewBox="0 0 14 16" fill="none" aria-hidden="true">
         <path d="M1 1.2v13.6c0 .5.5.8.9.6L13 8.6c.4-.2.4-.8 0-1L1.9.6C1.5.4 1 .7 1 1.2z" fill="currentColor"></path>
       </svg>
@@ -829,7 +852,7 @@ section { position: relative; z-index: 1; padding: 100px 0; }
           Six game modes, 1,500 words per language, 29 languages — all on a tiny offline app.
         </p>
         <div class="hero-actions">
-          <a class="gp-badge" href="https://play.google.com/store/apps/details?id=com.sepulka.shoutparty" target="_blank" rel="noopener" aria-label="Get it on Google Play">
+          <a class="gp-badge" href="https://play.google.com/store/apps/details?id=com.sepulka.shoutparty&referrer=utm_source%3Dshoutparty.com%26utm_medium%3Dreferral%26utm_campaign%3Dlanding%26utm_content%3Dbadge" target="_blank" rel="noopener" aria-label="Get it on Google Play">
             <svg class="gp-icon" viewBox="0 0 32 32" aria-hidden="true">
               <defs>
                 <linearGradient id="gp1" x1="0" y1="0" x2="1" y2="1">
@@ -969,35 +992,35 @@ section { position: relative; z-index: 1; padding: 100px 0; }
     <div class="container">
       <div class="shots-row reveal">
         <div>
-          <div class="shot"><img src="assets/2dfcac4a-3a47-4023-af7b-ee812efec9b3.png" alt="Home"></div>
+          <div class="shot"><img src="assets/2dfcac4a-3a47-4023-af7b-ee812efec9b3.png" alt="Shout Party home screen with game-mode selection"></div>
           <div class="shot-caption">Home</div>
         </div>
         <div>
-          <div class="shot"><img src="assets/229efa3b-b98c-4dbb-b24f-3405faa75157.png" alt="Teams"></div>
+          <div class="shot"><img src="assets/229efa3b-b98c-4dbb-b24f-3405faa75157.png" alt="Setting up teams in Shout Party"></div>
           <div class="shot-caption">Teams</div>
         </div>
         <div>
-          <div class="shot"><img src="assets/f43234f3-225e-4c3b-a9f9-b0c40c9937b2.png" alt="Modes"></div>
+          <div class="shot"><img src="assets/f43234f3-225e-4c3b-a9f9-b0c40c9937b2.png" alt="Shout Party game-mode picker"></div>
           <div class="shot-caption">Modes</div>
         </div>
         <div>
-          <div class="shot"><img src="assets/e11fd9a5-388c-400c-b259-058547d8a8f4.png" alt="In-game"></div>
+          <div class="shot"><img src="assets/e11fd9a5-388c-400c-b259-058547d8a8f4.png" alt="Shout Party in-game word card during a round"></div>
           <div class="shot-caption">In-game</div>
         </div>
         <div>
-          <div class="shot"><img src="assets/5964b490-9b91-4681-882d-a7c897487325.png" alt="Drawing"></div>
+          <div class="shot"><img src="assets/5964b490-9b91-4681-882d-a7c897487325.png" alt="Draw and Act mode in Shout Party"></div>
           <div class="shot-caption">Draw &amp; Act</div>
         </div>
         <div>
-          <div class="shot"><img src="assets/29ffbe02-d79e-4fd5-8a98-8c7d4027a271.png" alt="Round result"></div>
+          <div class="shot"><img src="assets/29ffbe02-d79e-4fd5-8a98-8c7d4027a271.png" alt="Shout Party round recap of words guessed and passed"></div>
           <div class="shot-caption">Round result</div>
         </div>
         <div>
-          <div class="shot"><img src="assets/714fb27f-2f32-4c14-b69b-774d8d364b11.png" alt="Game over"></div>
+          <div class="shot"><img src="assets/714fb27f-2f32-4c14-b69b-774d8d364b11.png" alt="Shout Party final scoreboard"></div>
           <div class="shot-caption">Final scores</div>
         </div>
         <div>
-          <div class="shot"><img src="assets/789b3d45-c488-4532-8bdb-a7693b0c9ccf.png" alt="Privacy"></div>
+          <div class="shot"><img src="assets/789b3d45-c488-4532-8bdb-a7693b0c9ccf.png" alt="Shout Party privacy settings screen"></div>
           <div class="shot-caption">Privacy</div>
         </div>
       </div>
@@ -1052,7 +1075,7 @@ section { position: relative; z-index: 1; padding: 100px 0; }
       <div class="cta-card reveal">
         <h2>Get the room <span class="accent">loud.</span></h2>
         <p>Free, offline, no ads. Install Shout Party and start your next round in under a minute.</p>
-        <a class="gp-badge" href="https://play.google.com/store/apps/details?id=com.sepulka.shoutparty" target="_blank" rel="noopener" aria-label="Get it on Google Play">
+        <a class="gp-badge" href="https://play.google.com/store/apps/details?id=com.sepulka.shoutparty&referrer=utm_source%3Dshoutparty.com%26utm_medium%3Dreferral%26utm_campaign%3Dlanding%26utm_content%3Dbadge" target="_blank" rel="noopener" aria-label="Get it on Google Play">
           <svg class="gp-icon" viewBox="0 0 32 32" aria-hidden="true">
             <defs>
               <linearGradient id="cgp1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3FE5C2"></stop><stop offset="1" stop-color="#1B9A7E"></stop></linearGradient>
@@ -1075,6 +1098,47 @@ section { position: relative; z-index: 1; padding: 100px 0; }
   </section>
 </main>
 
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="container">
+      <div class="section-head reveal">
+        <div class="section-eyebrow">Good to know</div>
+        <h2 class="section-title">Questions, answered.</h2>
+      </div>
+      <div class="faq-list reveal">
+      <details class="faq-item">
+        <summary>Is Shout Party free?</summary>
+        <p>Yes — Shout Party is free on Google Play. There are no ads and no in-app purchases.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Do I need an internet connection to play?</summary>
+        <p>No. Shout Party plays fully offline after installation; the word decks live on your device.</p>
+      </details>
+      <details class="faq-item">
+        <summary>How many players do I need?</summary>
+        <p>Shout Party works with two or more teams, so it fits anything from a couple of friends to a full room.</p>
+      </details>
+      <details class="faq-item">
+        <summary>What languages does Shout Party support?</summary>
+        <p>It ships in 29 languages, each with its own 1,500-word deck — pick a language and the whole game follows.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Do I need to create an account?</summary>
+        <p>No. There is no account, no sign-up and no personal data required to play.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Is Shout Party suitable for families?</summary>
+        <p>Yes. The word list is family-friendly, so it suits game nights with kids and grown-ups alike.</p>
+      </details>
+      <details class="faq-item">
+        <summary>What is High Stakes mode?</summary>
+        <p>High Stakes is a simulated bet round: teams wager points they have already earned. No real money or real currency is involved.</p>
+      </details>
+      </div>
+    </div>
+  </section>
+
 <footer class="footer">
   <div class="container footer-inner">
     <div class="nav-logo">
@@ -1087,4 +1151,121 @@ section { position: relative; z-index: 1; padding: 100px 0; }
 <script src="assets/09480860-5b70-4a62-8c0e-d00db7e6094a.js"></script>
 
 
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "MobileApplication",
+  "name": "Shout Party",
+  "operatingSystem": "Android",
+  "applicationCategory": "GameApplication",
+  "applicationSubCategory": "Party Game",
+  "url": "https://shoutparty.com/",
+  "downloadUrl": "https://play.google.com/store/apps/details?id=com.sepulka.shoutparty",
+  "description": "Shout Party is the word-guessing party game for friends and family. Six game modes, 1,500 words per language, 29 languages. Free, offline, no ads, no accounts.",
+  "inLanguage": [
+    "en",
+    "ru",
+    "uk",
+    "de",
+    "fr",
+    "es",
+    "it",
+    "pl",
+    "pt",
+    "nl",
+    "cs",
+    "sk",
+    "hu",
+    "ro",
+    "bg",
+    "hr",
+    "sr",
+    "sv",
+    "da",
+    "no",
+    "fi",
+    "tr",
+    "he",
+    "hi",
+    "id",
+    "zh",
+    "ja",
+    "ko",
+    "ar"
+  ],
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "SEPULKA S.R.L."
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is Shout Party free?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes — Shout Party is free on Google Play. There are no ads and no in-app purchases."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need an internet connection to play?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Shout Party plays fully offline after installation; the word decks live on your device."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How many players do I need?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Shout Party works with two or more teams, so it fits anything from a couple of friends to a full room."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What languages does Shout Party support?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It ships in 29 languages, each with its own 1,500-word deck — pick a language and the whole game follows."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need to create an account?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. There is no account, no sign-up and no personal data required to play."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is Shout Party suitable for families?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. The word list is family-friendly, so it suits game nights with kids and grown-ups alike."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is High Stakes mode?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "High Stakes is a simulated bet round: teams wager points they have already earned. No real money or real currency is involved."
+      }
+    }
+  ]
+}
+</script>
 </body></html>
