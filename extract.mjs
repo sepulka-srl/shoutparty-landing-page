@@ -148,7 +148,7 @@ const FAQ = [
   ['Do I need to create an account?',
    'No. There is no account, no sign-up and no personal data required to play.'],
   ['Is Shout Party suitable for families?',
-   'Yes. The word list is family-friendly, so it suits game nights with kids and grown-ups alike.'],
+   'Yes. The word list is family-friendly, so it suits game nights with family and friends.'],
   ['What is High Stakes mode?',
    'High Stakes is a simulated bet round: teams wager points they have already earned. No real money or real currency is involved.'],
 ];
@@ -259,10 +259,12 @@ template = template
   )
   // Operator identification line (Romanian Law 365/2002): full legal entity,
   // city/country, CUI (fiscal code), and contact email — required for EU
-  // commercial operators identifying themselves to consumers.
+  // commercial operators identifying themselves to consumers. Second line is
+  // Google's required attribution for referencing the Play brand/badge.
   .replace(
     '© 2026 Sepulka</div>',
-    '© 2026 SEPULKA S.R.L. · Bucharest, Romania · CUI 50254340 · <a href="mailto:contact@sepulka.cc">contact@sepulka.cc</a></div>'
+    '© 2026 SEPULKA S.R.L. · Bucharest, Romania · CUI 50254340 · <a href="mailto:contact@sepulka.cc">contact@sepulka.cc</a>' +
+      '<br>Google Play and the Google Play logo are trademarks of Google LLC.</div>'
   );
 
 await writeFile(path.join(OUT, 'index.html'), template);
