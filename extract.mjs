@@ -58,17 +58,80 @@ const mimeExt = {
   'text/html': 'html',
 };
 
+// --- Performance patch: particle canvas ------------------------------------
+// The exported particle script sizes its canvas backing store to the full page
+// height x devicePixelRatio^2, then clearRect()s and repaints that whole surface
+// on every animation frame. On a Retina display over a long page that is a
+// ~150-325 MB GPU texture cleared 60x/s — enough to pin the GPU and thermally
+// throttle the machine. The canvas is `position: fixed; inset: 0`, so it only
+// ever needs to cover the viewport. Patch the extracted asset (not docs/, which
+// is regenerated) to: size to the viewport, cap DPR at 2, pause while the tab is
+// hidden, and honour prefers-reduced-motion. Each replace asserts its anchor so
+// a future bundle re-export that changes this script fails loudly here.
+function patchParticleJs(src) {
+  let js = src;
+  const assertReplace = (from, to, label) => {
+    if (!js.includes(from)) throw new Error(`particle JS patch: ${label} anchor not found — bundle script changed`);
+    js = js.split(from).join(to);
+  };
+
+  // Honour reduced-motion: bail before any allocation or RAF loop.
+  assertReplace(
+    '  if (!canvas) return;\n',
+    "  if (!canvas) return;\n  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;\n",
+    'reduced-motion guard'
+  );
+
+  // Route every devicePixelRatio read through the capped `dpr` (declared next).
+  js = js.split('window.devicePixelRatio').join('dpr');
+
+  // Declare the capped dpr once. Inserted AFTER the global rewrite above so the
+  // initialiser keeps the real `window.devicePixelRatio` read.
+  assertReplace(
+    '  let w = 0, h = 0, raf;\n',
+    '  let w = 0, h = 0, raf;\n  const dpr = Math.min(window.devicePixelRatio || 1, 2);\n',
+    'dpr declaration'
+  );
+
+  // Size the backing store to the viewport, not the whole scrollable document.
+  assertReplace(
+    '    h = canvas.height = Math.max(document.body.scrollHeight, window.innerHeight) * dpr;\n',
+    '    h = canvas.height = window.innerHeight * dpr;\n',
+    'canvas height'
+  );
+  assertReplace(
+    "    canvas.style.height = Math.max(document.body.scrollHeight, window.innerHeight) + 'px';\n",
+    "    canvas.style.height = window.innerHeight + 'px';\n",
+    'canvas style height'
+  );
+
+  // Stop the RAF loop while the tab is hidden; restart it on return.
+  assertReplace(
+    '  resize();\n  tick();',
+    "  document.addEventListener('visibilitychange', () => {\n    cancelAnimationFrame(raf);\n    if (!document.hidden) tick();\n  });\n  resize();\n  tick();",
+    'visibility pause'
+  );
+
+  return js;
+}
+
 const uuidToPath = {};
 let assetCount = 0;
+let particlePatched = false;
 for (const [uuid, entry] of Object.entries(manifest)) {
   let bytes = Buffer.from(entry.data, 'base64');
   if (entry.compressed) bytes = gunzipSync(bytes);
   const ext = mimeExt[entry.mime] || 'bin';
+  if (ext === 'js' && bytes.toString('utf8').includes('// Particle field')) {
+    bytes = Buffer.from(patchParticleJs(bytes.toString('utf8')), 'utf8');
+    particlePatched = true;
+  }
   const filename = `${uuid}.${ext}`;
   await writeFile(path.join(ASSETS, filename), bytes);
   uuidToPath[uuid] = `assets/${filename}`;
   assetCount++;
 }
+if (!particlePatched) throw new Error('particle JS asset (// Particle field) not found in bundle — perf patch did not apply');
 console.log(`Wrote ${assetCount} assets`);
 
 // Replace UUID placeholders in template with asset paths
