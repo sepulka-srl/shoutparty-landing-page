@@ -11,6 +11,14 @@ const OUT = path.join(ROOT, 'docs');
 const ASSETS = path.join(OUT, 'assets');
 const STATIC = path.join(ROOT, 'static');
 
+// Cloudflare Web Analytics beacon token. Free, cookieless (no consent banner
+// needed), and the token is a PUBLIC client-side id — visible in page source —
+// so committing it here is fine, not a secret. Get it at
+// dash.cloudflare.com → Analytics & Logs → Web Analytics → add shoutparty.com.
+// While left as the placeholder the beacon is skipped (build still succeeds);
+// paste the real token to start collecting. Stats live in that same dashboard.
+const CF_BEACON_TOKEN = 'f3acd520895f438fa812dc5c9db100d0';
+
 const html = await readFile(BUNDLE, 'utf8');
 
 function pickScript(type) {
@@ -338,6 +346,18 @@ template = template
     '© 2026 SEPULKA S.R.L. · Bucharest, Romania · CUI 50254340 · <a href="mailto:contact@sepulka.cc">contact@sepulka.cc</a>' +
       '<br>Google Play and the Google Play logo are trademarks of Google LLC.</div>'
   );
+
+// Cloudflare Web Analytics: inject the cookieless beacon before </body>. Skipped
+// (with a warning) until CF_BEACON_TOKEN is filled in, so the build never ships a
+// broken <script> with a placeholder token.
+if (CF_BEACON_TOKEN && CF_BEACON_TOKEN !== 'PASTE_TOKEN_HERE') {
+  const beacon = `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"${CF_BEACON_TOKEN}"}'></script>`;
+  if (!template.includes('</body></html>')) throw new Error('analytics: </body></html> anchor not found');
+  template = template.replace('</body></html>', beacon + '\n</body></html>');
+  console.log('Injected Cloudflare Web Analytics beacon');
+} else {
+  console.warn('Cloudflare Web Analytics: CF_BEACON_TOKEN not set — beacon NOT injected');
+}
 
 await writeFile(path.join(OUT, 'index.html'), template);
 
