@@ -2,6 +2,7 @@
 (function() {
   const canvas = document.getElementById('particles');
   if (!canvas) return;
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const ctx = canvas.getContext('2d');
   const colors = [
     'rgba(63, 229, 194, 0.55)',  // mint
@@ -11,12 +12,13 @@
   ];
   let particles = [];
   let w = 0, h = 0, raf;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
   function resize() {
-    w = canvas.width = window.innerWidth * window.devicePixelRatio;
-    h = canvas.height = Math.max(document.body.scrollHeight, window.innerHeight) * window.devicePixelRatio;
+    w = canvas.width = window.innerWidth * dpr;
+    h = canvas.height = window.innerHeight * dpr;
     canvas.style.width = window.innerWidth + 'px';
-    canvas.style.height = Math.max(document.body.scrollHeight, window.innerHeight) + 'px';
+    canvas.style.height = window.innerHeight + 'px';
     init();
   }
 
@@ -27,10 +29,10 @@
       particles.push({
         x: Math.random() * w,
         y: Math.random() * h,
-        r: (Math.random() * 2.5 + 0.6) * window.devicePixelRatio,
+        r: (Math.random() * 2.5 + 0.6) * dpr,
         c: colors[(Math.random() * colors.length) | 0],
-        vx: (Math.random() - 0.5) * 0.15 * window.devicePixelRatio,
-        vy: (Math.random() - 0.5) * 0.15 * window.devicePixelRatio,
+        vx: (Math.random() - 0.5) * 0.15 * dpr,
+        vy: (Math.random() - 0.5) * 0.15 * dpr,
         a: Math.random() * Math.PI * 2,
         as: (Math.random() * 0.02 + 0.005),
       });
@@ -63,6 +65,10 @@
   });
   // Re-measure once images settle
   window.addEventListener('load', resize);
+  document.addEventListener('visibilitychange', () => {
+    cancelAnimationFrame(raf);
+    if (!document.hidden) tick();
+  });
   resize();
   tick();
 })();
