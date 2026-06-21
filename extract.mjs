@@ -348,7 +348,7 @@ template = template
   // city/country, CUI (fiscal code), and contact email — required for EU
   // commercial operators identifying themselves to consumers. The Privacy link
   // points at the site's own analytics disclosure (docs/privacy.html, generated
-  // below) — distinct from the app's policy at sepulka.cc/shoutparty/. Second
+  // below) — distinct from the app's policy at sepulka.cc/shoutparty/privacy.html. Second
   // line is Google's required attribution for referencing the Play brand/badge.
   .replace(
     '© 2026 Sepulka</div>',
@@ -483,7 +483,7 @@ const today = new Date().toISOString().slice(0, 10);
 
 // Site privacy notice. This covers shoutparty.com itself (the only personal-data
 // processing the *website* does is Cloudflare Web Analytics) — separate from the
-// Shout Party *app's* policy at sepulka.cc/shoutparty/. Cloudflare Web Analytics
+// Shout Party *app's* policy at sepulka.cc/shoutparty/privacy.html. Cloudflare Web Analytics
 // is cookieless, so no consent banner is owed; this page satisfies the GDPR
 // Art. 13 transparency duty that applies regardless of consent. Self-contained
 // (brand palette inline, no font/asset deps) so it renders even though docs/ is
@@ -523,7 +523,7 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 48px 0; }
 <h1>Website privacy notice</h1>
 <p class="muted">Last updated ${prettyDate}</p>
 
-<p>This notice explains how the <strong>shoutparty.com</strong> website handles your data. It covers the website only. The Shout Party Android app has its own privacy policy at <a href="https://sepulka.cc/shoutparty/" rel="noopener">sepulka.cc/shoutparty/</a>.</p>
+<p>This notice explains how the <strong>shoutparty.com</strong> website handles your data. It covers the website only. The Shout Party Android app has its own privacy policy at <a href="https://sepulka.cc/shoutparty/privacy.html" rel="noopener">sepulka.cc/shoutparty/privacy.html</a>.</p>
 
 <h2>What we measure</h2>
 <p>We use <strong>Cloudflare Web Analytics</strong> to understand, in aggregate, how the site is used. It records page views, the referring site, and an approximate country, device type and browser — derived from your request (including your IP address) at the moment of the visit. It does <strong>not</strong> build a profile of you, track you across other sites, or store your IP address to identify you.</p>
