@@ -526,7 +526,7 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 48px 0; }
 <p>This notice explains how the <strong>shoutparty.com</strong> website handles your data. It covers the website only. The Shout Party Android app has its own privacy policy at <a href="https://sepulka.cc/shoutparty/privacy.html" rel="noopener">sepulka.cc/shoutparty/privacy.html</a>.</p>
 
 <h2>What we measure</h2>
-<p>We use <strong>Cloudflare Web Analytics</strong> to understand, in aggregate, how the site is used. It records page views, the referring site, and an approximate country, device type and browser — derived from your request (including your IP address) at the moment of the visit. It does <strong>not</strong> build a profile of you, track you across other sites, or store your IP address to identify you.</p>
+<p>We use <strong>Cloudflare Web Analytics</strong> to understand, in aggregate, how the site is used and how it performs. It records page views, the referring site, and basic page-load timings, plus an approximate country (derived from your IP address) and your device type, browser and operating system (derived from your browser's user-agent). It does <strong>not</strong> build a profile of you, track you across other sites, or store your IP address to identify you.</p>
 
 <h2>Cookies</h2>
 <p>None. Cloudflare Web Analytics is cookieless and stores nothing on your device, which is why this site shows no cookie-consent banner.</p>
