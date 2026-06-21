@@ -1,5 +1,6 @@
 .idea/
 .claude/
+CLAUDE.md
 .DS_Store
 node_modules/
 docs/site_seo_suggestions.md
