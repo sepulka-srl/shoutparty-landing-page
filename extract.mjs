@@ -19,6 +19,13 @@ const STATIC = path.join(ROOT, 'static');
 // paste the real token to start collecting. Stats live in that same dashboard.
 const CF_BEACON_TOKEN = 'f3acd520895f438fa812dc5c9db100d0';
 
+// Built once and injected into every generated page (index.html + privacy.html)
+// so all of shoutparty.com is tracked under the one hostname beacon. Empty while
+// the token is the placeholder, so those pages ship without a broken <script>.
+const cfBeacon = (CF_BEACON_TOKEN && CF_BEACON_TOKEN !== 'PASTE_TOKEN_HERE')
+  ? `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"${CF_BEACON_TOKEN}"}'></script>`
+  : '';
+
 const html = await readFile(BUNDLE, 'utf8');
 
 function pickScript(type) {
@@ -339,21 +346,23 @@ template = template
   )
   // Operator identification line (Romanian Law 365/2002): full legal entity,
   // city/country, CUI (fiscal code), and contact email — required for EU
-  // commercial operators identifying themselves to consumers. Second line is
-  // Google's required attribution for referencing the Play brand/badge.
+  // commercial operators identifying themselves to consumers. The Privacy link
+  // points at the site's own analytics disclosure (docs/privacy.html, generated
+  // below) — distinct from the app's policy at sepulka.cc/shoutparty/. Second
+  // line is Google's required attribution for referencing the Play brand/badge.
   .replace(
     '© 2026 Sepulka</div>',
-    '© 2026 SEPULKA S.R.L. · Bucharest, Romania · CUI 50254340 · <a href="mailto:contact@sepulka.cc">contact@sepulka.cc</a>' +
+    '© 2026 SEPULKA S.R.L. · Bucharest, Romania · CUI 50254340 · <a href="mailto:contact@sepulka.cc">contact@sepulka.cc</a> · <a href="/privacy">Privacy</a>' +
       '<br>Google Play and the Google Play logo are trademarks of Google LLC.</div>'
   );
 
 // Cloudflare Web Analytics: inject the cookieless beacon before </body>. Skipped
 // (with a warning) until CF_BEACON_TOKEN is filled in, so the build never ships a
-// broken <script> with a placeholder token.
-if (CF_BEACON_TOKEN && CF_BEACON_TOKEN !== 'PASTE_TOKEN_HERE') {
-  const beacon = `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"${CF_BEACON_TOKEN}"}'></script>`;
+// broken <script> with a placeholder token. privacy.html gets the same beacon
+// further down, so the whole site reports under the one hostname.
+if (cfBeacon) {
   if (!template.includes('</body></html>')) throw new Error('analytics: </body></html> anchor not found');
-  template = template.replace('</body></html>', beacon + '\n</body></html>');
+  template = template.replace('</body></html>', cfBeacon + '\n</body></html>');
   console.log('Injected Cloudflare Web Analytics beacon');
 } else {
   console.warn('Cloudflare Web Analytics: CF_BEACON_TOKEN not set — beacon NOT injected');
@@ -471,6 +480,75 @@ await copyFile(path.join(STATIC, 'google-play-badge.png'), path.join(ASSETS, 'go
 
 // Crawl directives. sitemap <lastmod> is refreshed to the build date each run.
 const today = new Date().toISOString().slice(0, 10);
+
+// Site privacy notice. This covers shoutparty.com itself (the only personal-data
+// processing the *website* does is Cloudflare Web Analytics) — separate from the
+// Shout Party *app's* policy at sepulka.cc/shoutparty/. Cloudflare Web Analytics
+// is cookieless, so no consent banner is owed; this page satisfies the GDPR
+// Art. 13 transparency duty that applies regardless of consent. Self-contained
+// (brand palette inline, no font/asset deps) so it renders even though docs/ is
+// wiped each run and it shares none of index.html's hashed assets.
+const prettyDate = new Date(today + 'T00:00:00Z').toLocaleDateString('en-GB', {
+  day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC',
+});
+const PRIVACY_HTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy — Shout Party</title>
+<meta name="description" content="Privacy notice for the shoutparty.com website: what the site measures with Cloudflare Web Analytics, and why no cookies or consent banner are used.">
+<link rel="canonical" href="https://shoutparty.com/privacy">
+<meta name="robots" content="index, follow">
+<style>
+:root { --bg: #0A0A0F; --text: #F4F4F8; --text-mute: #9A9AA8; --text-dim: #6A6A7A; --mint: #3FE5C2; --border: rgba(255, 255, 255, 0.08); }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text-mute); line-height: 1.7; -webkit-font-smoothing: antialiased; font-family: 'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+.wrap { max-width: 720px; margin: 0 auto; padding: 72px 24px 120px; }
+a { color: var(--mint); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.back { display: inline-block; margin-bottom: 44px; font-weight: 600; }
+h1 { color: var(--text); font-size: 34px; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 8px; }
+h2 { color: var(--text); font-size: 20px; font-weight: 700; margin: 40px 0 12px; }
+p, li { font-size: 16px; }
+ul { padding-left: 22px; }
+li { margin: 6px 0; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 48px 0; }
+.muted { color: var(--text-dim); font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<a class="back" href="/">← Back to Shout Party</a>
+<h1>Website privacy notice</h1>
+<p class="muted">Last updated ${prettyDate}</p>
+
+<p>This notice explains how the <strong>shoutparty.com</strong> website handles your data. It covers the website only. The Shout Party Android app has its own privacy policy at <a href="https://sepulka.cc/shoutparty/" rel="noopener">sepulka.cc/shoutparty/</a>.</p>
+
+<h2>What we measure</h2>
+<p>We use <strong>Cloudflare Web Analytics</strong> to understand, in aggregate, how the site is used. It records page views, the referring site, and an approximate country, device type and browser — derived from your request (including your IP address) at the moment of the visit. It does <strong>not</strong> build a profile of you, track you across other sites, or store your IP address to identify you.</p>
+
+<h2>Cookies</h2>
+<p>None. Cloudflare Web Analytics is cookieless and stores nothing on your device, which is why this site shows no cookie-consent banner.</p>
+
+<h2>Legal basis</h2>
+<p>Processing rests on our legitimate interest (Art. 6(1)(f) GDPR) in measuring and improving the website. Because the data is aggregate and not used to identify you, your interests are not overridden.</p>
+
+<h2>Who processes the data</h2>
+<p>Cloudflare, Inc. provides the analytics as our processor. See Cloudflare's <a href="https://www.cloudflare.com/privacypolicy/" rel="noopener">privacy policy</a> and its <a href="https://www.cloudflare.com/web-analytics/" rel="noopener">Web Analytics</a> page for details on how it handles the data.</p>
+
+<h2>Your rights</h2>
+<p>Under the GDPR you may request access, rectification, erasure, restriction or objection regarding your personal data. Because this site's analytics are aggregate and cookieless we hold no record tied to you individually, but you are welcome to contact us with any question at <a href="mailto:contact@sepulka.cc">contact@sepulka.cc</a>.</p>
+
+<hr>
+<p class="muted">Operator: SEPULKA S.R.L. · Bucharest, Romania · CUI 50254340 · <a href="mailto:contact@sepulka.cc">contact@sepulka.cc</a></p>
+</div>
+${cfBeacon}
+</body>
+</html>
+`;
+await writeFile(path.join(OUT, 'privacy.html'), PRIVACY_HTML);
+
 await writeFile(path.join(OUT, 'robots.txt'),
   'User-agent: *\nAllow: /\n\nSitemap: https://shoutparty.com/sitemap.xml\n');
 await writeFile(path.join(OUT, 'sitemap.xml'),
@@ -481,6 +559,12 @@ await writeFile(path.join(OUT, 'sitemap.xml'),
   `    <lastmod>${today}</lastmod>\n` +
   '    <changefreq>monthly</changefreq>\n' +
   '    <priority>1.0</priority>\n' +
+  '  </url>\n' +
+  '  <url>\n' +
+  '    <loc>https://shoutparty.com/privacy</loc>\n' +
+  `    <lastmod>${today}</lastmod>\n` +
+  '    <changefreq>yearly</changefreq>\n' +
+  '    <priority>0.3</priority>\n' +
   '  </url>\n' +
   '</urlset>\n');
 
