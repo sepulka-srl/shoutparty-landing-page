@@ -28,6 +28,32 @@ const cfBeacon = (CF_BEACON_TOKEN && CF_BEACON_TOKEN !== 'PASTE_TOKEN_HERE')
 
 const html = await readFile(BUNDLE, 'utf8');
 
+// --- Localization -----------------------------------------------------------
+// The app ships in 29 languages; the homepage is English. We generate a
+// standalone localized landing page per non-English language at /<code>/, built
+// entirely from the Play-Console-approved store-listing copy (l10n/listings.json,
+// parsed from the app repo's docs/store_listings/*.md). Every translated string
+// is reused verbatim — structure is derived only from the language-independent
+// ✦ (section) and • (bullet) markers, so no copy is machine-translated or altered.
+// hreflang stitches all locales together (English homepage = en + x-default).
+const LISTINGS = JSON.parse(await readFile(path.join(ROOT, 'l10n', 'listings.json'), 'utf8'));
+const LOCALES = ['en', 'ru', 'uk', 'de', 'fr', 'es', 'it', 'pl', 'pt', 'nl', 'cs', 'sk', 'hu', 'ro', 'bg', 'hr', 'sr', 'sv', 'da', 'no', 'fi', 'tr', 'he', 'hi', 'id', 'zh', 'ja', 'ko', 'ar'];
+const RTL = new Set(['ar', 'he']);
+// og:locale needs language_TERRITORY; map each to the app's default territory.
+const OG_LOCALE = {
+  en: 'en_US', ru: 'ru_RU', uk: 'uk_UA', de: 'de_DE', fr: 'fr_FR', es: 'es_ES', it: 'it_IT',
+  pl: 'pl_PL', pt: 'pt_PT', nl: 'nl_NL', cs: 'cs_CZ', sk: 'sk_SK', hu: 'hu_HU', ro: 'ro_RO',
+  bg: 'bg_BG', hr: 'hr_HR', sr: 'sr_RS', sv: 'sv_SE', da: 'da_DK', no: 'nb_NO', fi: 'fi_FI',
+  tr: 'tr_TR', he: 'he_IL', hi: 'hi_IN', id: 'id_ID', zh: 'zh_CN', ja: 'ja_JP', ko: 'ko_KR', ar: 'ar_AR',
+};
+// Home URL for a locale: English lives at the site root, others at /<code>/.
+const localeUrl = (code) => (code === 'en' ? 'https://shoutparty.com/' : `https://shoutparty.com/${code}/`);
+// Reciprocal hreflang set — identical (self-referencing) on every page, per spec.
+const hreflangSet = [
+  ...LOCALES.map((c) => `<link rel="alternate" hreflang="${c}" href="${localeUrl(c)}">`),
+  '<link rel="alternate" hreflang="x-default" href="https://shoutparty.com/">',
+].join('\n');
+
 function pickScript(type) {
   const re = new RegExp(`<script[^>]*type="${type}"[^>]*>([\\s\\S]*?)</script>`, 'i');
   const m = html.match(re);
@@ -195,7 +221,8 @@ template = template.replace(DESC_META, DESC_META + `
 <meta name="twitter:title" content="Shout Party — The word-guessing party game">
 <meta name="twitter:description" content="Six game modes, 1,500 words per language, 29 languages. Free on Google Play — no ads, no accounts, plays offline.">
 <meta name="twitter:image" content="https://shoutparty.com/assets/og-image.png">
-<meta name="twitter:image:alt" content="Shout Party — neon party-game wordmark">`);
+<meta name="twitter:image:alt" content="Shout Party — neon party-game wordmark">
+${hreflangSet}`);
 
 // Descriptive image alt text for the screenshot strip (was "Home", "Teams"…).
 for (const [from, to] of [
@@ -352,7 +379,8 @@ template = template
   // line is Google's required attribution for referencing the Play brand/badge.
   .replace(
     '© 2026 Sepulka</div>',
-    '© 2026 SEPULKA S.R.L. · Bucharest, Romania · CUI 50254340 · <a href="mailto:contact@sepulka.cc">contact@sepulka.cc</a> · <a href="/privacy">Privacy</a>' +
+    '<a href="/how-to-play-charades">How to play charades</a> · <a href="/charades-words">Charades words</a><br>' +
+      '© 2026 SEPULKA S.R.L. · Bucharest, Romania · CUI 50254340 · <a href="mailto:contact@sepulka.cc">contact@sepulka.cc</a> · <a href="/privacy">Privacy</a>' +
       '<br>Google Play and the Google Play logo are trademarks of Google LLC.</div>'
   );
 
@@ -549,6 +577,406 @@ ${cfBeacon}
 `;
 await writeFile(path.join(OUT, 'privacy.html'), PRIVACY_HTML);
 
+// --- SEO content pages ------------------------------------------------------
+// Long-tail organic-search pages (charades how-to + word lists). Authored the
+// same way as privacy.html: self-contained HTML (brand palette inline, no shared
+// hashed assets) written straight to docs/, so they survive the docs/ wipe and
+// don't depend on the design bundle. Each carries its own canonical/OG/JSON-LD
+// and a Play CTA with a per-page utm_content tag. Registered in sitemap.xml and
+// linked from the homepage footer below.
+const CONTENT_CSS = `
+:root { --bg: #0A0A0F; --surface: #14141C; --text: #F4F4F8; --text-mute: #9A9AA8; --text-dim: #6A6A7A; --mint: #3FE5C2; --orange: #FF6B35; --peach: #F7C59F; --gold: #FFD166; --border: rgba(255,255,255,0.08); }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text-mute); line-height: 1.7; -webkit-font-smoothing: antialiased; font-family: 'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+a { color: var(--mint); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.wrap { max-width: 820px; margin: 0 auto; padding: 0 24px; }
+header.site { border-bottom: 1px solid var(--border); }
+header.site .wrap { display: flex; align-items: center; justify-content: space-between; padding-top: 20px; padding-bottom: 20px; }
+.logo { font-weight: 800; letter-spacing: -0.01em; font-size: 20px; }
+.logo .shout { color: var(--orange); }
+.logo .party { color: var(--mint); }
+.nav-cta { font-weight: 600; color: var(--text); }
+main { padding: 56px 0 24px; }
+h1 { color: var(--text); font-size: clamp(30px, 6vw, 44px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.12; margin: 0 0 20px; }
+h2 { color: var(--text); font-size: 25px; font-weight: 700; letter-spacing: -0.01em; margin: 48px 0 14px; }
+h3 { color: var(--text); font-size: 19px; font-weight: 700; margin: 30px 0 10px; }
+p, li { font-size: 17px; }
+.lead { font-size: 20px; color: var(--text); line-height: 1.6; }
+ul, ol { padding-left: 22px; }
+li { margin: 8px 0; }
+strong { color: var(--text); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 4px; }
+.chip { display: inline-block; padding: 7px 14px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); font-size: 15px; font-weight: 600; }
+.note { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--mint); border-radius: 12px; padding: 18px 20px; margin: 22px 0; }
+.note p { margin: 0; }
+.cta { text-align: center; background: linear-gradient(135deg, rgba(255,107,53,0.10), rgba(63,229,194,0.10)); border: 1px solid var(--border); border-radius: 20px; padding: 40px 28px; margin: 56px 0 8px; }
+.cta h2 { margin-top: 0; }
+.cta p { max-width: 520px; margin: 0 auto 22px; color: var(--text-mute); }
+.cta-badge img { display: inline-block; height: 62px; width: auto; }
+footer.site { border-top: 1px solid var(--border); margin-top: 64px; }
+footer.site .wrap { padding-top: 40px; padding-bottom: 64px; }
+.foot-links { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 20px; }
+.foot-links a { color: var(--text-mute); font-weight: 600; }
+.muted { color: var(--text-dim); font-size: 14px; line-height: 1.7; }
+`;
+
+// One word chip per entry.
+const chips = (words) =>
+  `<div class="chips">${words.map((w) => `<span class="chip">${w}</span>`).join('')}</div>`;
+
+// Escape for use in HTML text/attributes. h1/title/description are authored as
+// plain text (so the JSON-LD below carries clean strings) and escaped here where
+// they land in markup.
+const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+// Full self-contained content page. `cta` is the utm_content tag for the Play CTA.
+function contentPage({ slug, title, description, h1, cta, jsonLd, body }) {
+  const url = `https://shoutparty.com/${slug}`;
+  const [t, d, h] = [esc(title), esc(description), esc(h1)];
+  const ld = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Shout Party', item: 'https://shoutparty.com/' },
+        { '@type': 'ListItem', position: 2, name: h1, item: url },
+      ],
+    },
+    jsonLd,
+  ];
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${t}</title>
+<meta name="description" content="${d}">
+<link rel="canonical" href="${url}">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Shout Party">
+<meta property="og:title" content="${t}">
+<meta property="og:description" content="${d}">
+<meta property="og:url" content="${url}">
+<meta property="og:image" content="https://shoutparty.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${t}">
+<meta name="twitter:description" content="${d}">
+<meta name="twitter:image" content="https://shoutparty.com/assets/og-image.png">
+<style>${CONTENT_CSS}</style>
+${ld.map((o) => ldScript(o)).join('\n')}
+</head>
+<body>
+<header class="site">
+  <div class="wrap">
+    <a class="logo" href="/"><span class="shout">SHOUT</span><span class="party">PARTY</span></a>
+    <a class="nav-cta" href="${playUrl(cta)}" target="_blank" rel="noopener">Get on Google Play</a>
+  </div>
+</header>
+<main>
+  <div class="wrap">
+    <h1>${h}</h1>
+${body}
+    <div class="cta">
+      <h2>Play it hands-free</h2>
+      <p>Shout Party deals the words, runs the timer and keeps score for you — 1,500 words per language across 29 languages, six game modes, no ads, no accounts, and it plays fully offline. Free on Google Play.</p>
+      <a class="cta-badge" href="${playUrl(cta)}" target="_blank" rel="noopener"><img src="/assets/google-play-badge.png" alt="Get it on Google Play" width="160" height="62"></a>
+    </div>
+  </div>
+</main>
+<footer class="site">
+  <div class="wrap">
+    <div class="foot-links">
+      <a href="/">Home</a>
+      <a href="/how-to-play-charades">How to play charades</a>
+      <a href="/charades-words">Charades words</a>
+      <a href="/privacy">Privacy</a>
+    </div>
+    <p class="muted">© 2026 SEPULKA S.R.L. · Bucharest, Romania · CUI 50254340 · <a href="mailto:contact@sepulka.cc">contact@sepulka.cc</a><br>Google Play and the Google Play logo are trademarks of Google LLC.</p>
+  </div>
+</footer>
+${cfBeacon}
+</body>
+</html>
+`;
+}
+
+// --- Page: How to play charades --------------------------------------------
+const howToBody = `
+    <p class="lead">Charades is the classic no-equipment party game: one player acts out a word or phrase in total silence while their team races the clock to guess it. Here is everything you need to run a great game — the rules, the classic hand signals, the most popular variations, and a few tips to keep the whole room laughing.</p>
+
+    <h2>What you need</h2>
+    <ul>
+      <li><strong>Four or more players</strong>, split into two teams (it scales happily to a big group).</li>
+      <li><strong>A list of words</strong> to act out — grab some from our <a href="/charades-words">charades words list</a>, or let an app deal them so nobody sees the answers in advance.</li>
+      <li><strong>A timer</strong> — one minute per turn is the classic setting.</li>
+      <li>Something to keep score — a scrap of paper or your phone.</li>
+    </ul>
+
+    <h2>The basic rules, step by step</h2>
+    <ol>
+      <li><strong>Split into two teams.</strong> Each team takes turns sending one player up to act.</li>
+      <li><strong>The actor draws a word</strong> in secret — the opposing team, an app, or a bowl of folded slips picks it so their own team cannot see it.</li>
+      <li><strong>Start the timer</strong> and act it out <strong>in silence</strong>. No talking, no mouthing words, no pointing at objects in the room.</li>
+      <li><strong>The actor's team shouts guesses</strong> until they get it or the minute runs out.</li>
+      <li><strong>Score a point</strong> for every word guessed in time, then pass play to the other team.</li>
+      <li><strong>Keep rotating actors</strong> so everyone gets a turn. Most points after an agreed number of rounds wins.</li>
+    </ol>
+
+    <h2>Classic charades hand signals</h2>
+    <p>Before acting, players use a shared set of silent signals to frame the clue. These are worth agreeing on up front:</p>
+    <ul>
+      <li><strong>Number of words</strong> — hold up fingers for how many words are in the phrase.</li>
+      <li><strong>Which word</strong> — hold up fingers again to show which word you are about to act (word one, word two…).</li>
+      <li><strong>Number of syllables</strong> — tap that many fingers on your forearm.</li>
+      <li><strong>"Sounds like"</strong> — cup a hand behind your ear.</li>
+      <li><strong>"Whole thing"</strong> — sweep your arms in a big circle to signal you are acting the entire phrase at once.</li>
+      <li><strong>"Close!"</strong> — wave a hand to pull guessers toward a nearly-right answer.</li>
+    </ul>
+
+    <h2>Popular charades variations</h2>
+    <p>Half the fun is bending the rules. These are the variations groups reach for most — each one is also a built-in mode in Shout Party:</p>
+    <ul>
+      <li><strong>Describe it (no gestures):</strong> instead of acting, describe the word out loud without saying the word itself or any part of it — the Taboo-style twist.</li>
+      <li><strong>Speed round:</strong> a short per-word timer with an auto-skip, so teams blitz through as many words as they can.</li>
+      <li><strong>Draw it:</strong> sketch the word instead of acting — no talking, no letters or numbers on the page.</li>
+      <li><strong>One sentence only:</strong> you may say a single sentence to get your team there — choose it carefully.</li>
+      <li><strong>Streak bonus:</strong> reward momentum by adding bonus time every few correct answers in a row.</li>
+      <li><strong>Bet on it:</strong> before the round, a team wagers points on how many words they think they can nail — make the bid and win big, miss it and lose the stake.</li>
+    </ul>
+
+    <h2>Tips for a better game</h2>
+    <ul>
+      <li><strong>Mix easy and hard words</strong> so every turn has a fighting chance — see our sorted <a href="/charades-words">word lists</a>.</li>
+      <li><strong>Deal words blind.</strong> The actor should not pick their own word; surprise is where the comedy lives.</li>
+      <li><strong>Agree on the signals first</strong> so nobody wastes their minute explaining the rules mid-turn.</li>
+      <li><strong>Keep teams even.</strong> Balanced team sizes keep the score meaningful.</li>
+      <li><strong>Set a round limit</strong> up front so the game has a clear finish and a clear winner.</li>
+    </ul>
+
+    <h2>Skip the prep</h2>
+    <p>Writing slips, watching the clock and tracking score by hand is the tedious part. Shout Party handles all of it: it deals words nobody has seen, runs the round timer, tallies the score, and ships the variations above as ready-to-play modes — in 29 languages, fully offline.</p>
+`;
+const howToLd = {
+  '@context': 'https://schema.org',
+  '@type': 'HowTo',
+  name: 'How to play charades',
+  description: 'The rules of charades: set up teams, act out words in silence, guess against a timer, and use the classic hand signals and popular variations.',
+  totalTime: 'PT2M',
+  step: [
+    { '@type': 'HowToStep', name: 'Make two teams', text: 'Split all players into two teams that take turns acting.' },
+    { '@type': 'HowToStep', name: 'Draw a word in secret', text: 'The actor gets a word their own team cannot see, picked by the other team or an app.' },
+    { '@type': 'HowToStep', name: 'Act it out in silence', text: 'Start a one-minute timer and act the word with no talking, mouthing or pointing.' },
+    { '@type': 'HowToStep', name: 'Guess against the clock', text: 'The actor’s team shouts guesses until they get it or time runs out.' },
+    { '@type': 'HowToStep', name: 'Score and rotate', text: 'Score a point for each word guessed in time, then pass play and rotate actors.' },
+  ],
+};
+await writeFile(path.join(OUT, 'how-to-play-charades.html'), contentPage({
+  slug: 'how-to-play-charades',
+  title: 'How to Play Charades — Rules, Signals and Variations | Shout Party',
+  description: 'Learn how to play charades: full rules, the classic hand signals, popular variations, and tips for a great game. Plus free word lists to get started.',
+  h1: 'How to play charades',
+  cta: 'howto',
+  jsonLd: howToLd,
+  body: howToBody,
+}));
+
+// --- Page: Charades words ---------------------------------------------------
+// Word samples are drawn from the shipping English deck (1,500 words), so the
+// lists match real in-game content across the ten categories and three tiers.
+const W = {
+  easy: ['Chair', 'Dog', 'Pizza', 'Guitar', 'Ball', 'King', 'Tree', 'Rocket', 'Dress', 'Phone', 'Cake', 'Elephant', 'Movie', 'Mountain', 'Sword', 'Frog', 'Penguin', 'Book'],
+  medium: ['Umbrella', 'Rehearsal', 'Substitute', 'Gladiator', 'Estuary', 'Platypus', 'Marinate', 'Itinerary', 'Cashmere', 'Spotlight', 'Chameleon', 'Kimchi', 'Tuxedo', 'Avalanche', 'Javelin', 'Screenplay'],
+  hard: ['Chandelier', 'Soliloquy', 'Decathlon', 'Mitochondria', 'Sarcophagus', 'Atoll', 'Pangolin', 'Charcuterie', 'Caravanserai', 'Jacquard', 'Denouement', 'Bioluminescence', 'Cuneiform', 'Umami', 'Vaudeville', 'Mirepoix'],
+  animals: ['Dog', 'Cat', 'Elephant', 'Penguin', 'Octopus', 'Meerkat', 'Platypus', 'Chameleon', 'Narwhal', 'Pangolin', 'Armadillo', 'Crocodile'],
+  food: ['Pizza', 'Cheese', 'Sushi', 'Cake', 'Burger', 'Marinate', 'Paella', 'Kimchi', 'Charcuterie', 'Umami', 'Tagine', 'Caramelise'],
+  entertainment: ['Movie', 'Dance', 'Circus', 'Concert', 'Magic', 'Screenplay', 'Spotlight', 'Soundtrack', 'Pantomime', 'Cinematography', 'Puppet', 'Overture'],
+  sports: ['Ball', 'Goal', 'Race', 'Trophy', 'Referee', 'Penalty', 'Offside', 'Javelin', 'Fencing', 'Decathlon', 'Hurdle', 'Archery'],
+  everyday: ['Chair', 'Table', 'Phone', 'Key', 'Umbrella', 'Mirror', 'Scissors', 'Hammer', 'Wallet', 'Chandelier', 'Toothbrush', 'Colander'],
+  nature: ['Tree', 'River', 'Mountain', 'Rain', 'Volcano', 'Desert', 'Glacier', 'Tundra', 'Avalanche', 'Geyser', 'Estuary', 'Monsoon'],
+  funny: ['Pangolin', 'Vaudeville', 'Charcuterie', 'Soliloquy', 'Platypus', 'Kimchi', 'Caravanserai', 'Narwhal', 'Chandelier', 'Meerkat', 'Bellows', 'Tuxedo'],
+  kids: ['Dog', 'Cat', 'Cake', 'Ball', 'Tree', 'Elephant', 'Pizza', 'Rocket', 'Frog', 'Guitar', 'Penguin', 'Butterfly'],
+};
+const wordsBody = `
+    <p class="lead">Stuck for ideas? Here are hundreds of charades words, sorted by difficulty and by theme, all pulled straight from the Shout Party decks. Skim a list, pick your favourites, or use them as a warm-up before the real game. New to the game? Start with <a href="/how-to-play-charades">how to play charades</a>.</p>
+
+    <h2>How to use these lists</h2>
+    <ul>
+      <li><strong>Mix the tiers.</strong> Blend easy and hard words so every player has a fair shot.</li>
+      <li><strong>Deal them blind.</strong> Have someone else pick the word so the actor is genuinely surprised.</li>
+      <li><strong>No repeats.</strong> Cross off words as you use them to keep each round fresh.</li>
+    </ul>
+
+    <h2>Easy charades words</h2>
+    <p>Short, concrete and instantly recognisable — perfect for warm-ups, younger players and mixed groups.</p>
+    ${chips(W.easy)}
+
+    <h2>Medium charades words</h2>
+    <p>A step up: still guessable, but they reward a bit of creativity from the actor.</p>
+    ${chips(W.medium)}
+
+    <h2>Hard charades words</h2>
+    <p>For experienced players who want a challenge — abstract, technical or delightfully obscure, and often the source of the biggest laughs.</p>
+    ${chips(W.hard)}
+
+    <h2>Charades words by category</h2>
+    <h3>Animals</h3>
+    ${chips(W.animals)}
+    <h3>Food &amp; drink</h3>
+    ${chips(W.food)}
+    <h3>Movies &amp; entertainment</h3>
+    ${chips(W.entertainment)}
+    <h3>Sports</h3>
+    ${chips(W.sports)}
+    <h3>Everyday objects</h3>
+    ${chips(W.everyday)}
+    <h3>Nature</h3>
+    ${chips(W.nature)}
+
+    <h2>Funny charades words for adults</h2>
+    <p>The trickier words tend to produce the most ridiculous performances. These are crowd-pleasers when the group is up for a challenge.</p>
+    ${chips(W.funny)}
+
+    <h2>Charades words for kids</h2>
+    <p>Simple, friendly and easy to act — great for family game nights and younger players.</p>
+    ${chips(W.kids)}
+
+    <div class="note"><p>These are a small sample. The Shout Party app ships <strong>1,500 words per language</strong> across ten categories and three difficulty tiers, dealt automatically so nobody sees the answers — in 29 languages.</p></div>
+`;
+const wordsLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: 'Charades words and ideas, sorted by difficulty and category',
+  description: 'Hundreds of charades words sorted by difficulty (easy, medium, hard) and by theme — animals, food, movies, sports and more, plus funny words for adults and easy words for kids.',
+  author: { '@type': 'Organization', name: 'SEPULKA S.R.L.' },
+  publisher: { '@type': 'Organization', name: 'SEPULKA S.R.L.' },
+  mainEntityOfPage: 'https://shoutparty.com/charades-words',
+};
+await writeFile(path.join(OUT, 'charades-words.html'), contentPage({
+  slug: 'charades-words',
+  title: 'Charades Words and Ideas — Easy, Medium and Hard Lists | Shout Party',
+  description: 'Hundreds of charades words sorted by difficulty and category: easy words for kids, hard words for adults, plus animals, food, movies, sports and more.',
+  h1: 'Charades words & ideas',
+  cta: 'words',
+  jsonLd: wordsLd,
+  body: wordsBody,
+}));
+
+// --- Localized landing pages (/<code>/) -------------------------------------
+// Render the store-listing full description into HTML, deriving structure only
+// from the ✦ (section heading) and • (bullet) markers. Bare URLs are linkified.
+function renderListingBody(full) {
+  const linkify = (t) => esc(t).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" rel="noopener">$1</a>');
+  let out = '';
+  let inUl = false;
+  const closeUl = () => { if (inUl) { out += '    </ul>\n'; inUl = false; } };
+  for (const raw of full.split('\n')) {
+    const line = raw.trim();
+    if (!line) { closeUl(); continue; }
+    if (line.startsWith('✦')) {
+      closeUl();
+      out += `    <h2>${esc(line.replace(/^✦\s*/, ''))}</h2>\n`;
+    } else if (line.startsWith('•')) {
+      if (!inUl) { out += '    <ul>\n'; inUl = true; }
+      out += `      <li>${linkify(line.replace(/^•\s*/, ''))}</li>\n`;
+    } else {
+      closeUl();
+      out += `    <p>${linkify(line)}</p>\n`;
+    }
+  }
+  closeUl();
+  return out;
+}
+
+function localePage(code) {
+  const L = LISTINGS[code];
+  const url = localeUrl(code);
+  const dir = RTL.has(code) ? ' dir="rtl"' : '';
+  const appLdLocale = {
+    '@context': 'https://schema.org',
+    '@type': 'MobileApplication',
+    name: 'Shout Party',
+    operatingSystem: 'Android',
+    applicationCategory: 'GameApplication',
+    applicationSubCategory: 'Party Game',
+    url,
+    downloadUrl: 'https://play.google.com/store/apps/details?id=com.sepulka.shoutparty',
+    description: L.short,
+    inLanguage: code,
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    publisher: { '@type': 'Organization', name: 'SEPULKA S.R.L.' },
+  };
+  return `<!DOCTYPE html>
+<html lang="${code}"${dir}>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${esc(L.title)}</title>
+<meta name="description" content="${esc(L.short)}">
+<link rel="canonical" href="${url}">
+<meta name="robots" content="index, follow">
+${hreflangSet}
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Shout Party">
+<meta property="og:title" content="${esc(L.title)}">
+<meta property="og:description" content="${esc(L.short)}">
+<meta property="og:url" content="${url}">
+<meta property="og:image" content="https://shoutparty.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="${OG_LOCALE[code]}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${esc(L.title)}">
+<meta name="twitter:description" content="${esc(L.short)}">
+<meta name="twitter:image" content="https://shoutparty.com/assets/og-image.png">
+<style>${CONTENT_CSS}</style>
+${ldScript(appLdLocale)}
+</head>
+<body>
+<header class="site">
+  <div class="wrap">
+    <a class="logo" href="/"><span class="shout">SHOUT</span><span class="party">PARTY</span></a>
+    <a class="nav-cta" href="${playUrl(`lang_${code}`)}" target="_blank" rel="noopener">Google Play</a>
+  </div>
+</header>
+<main>
+  <div class="wrap">
+    <h1>${esc(L.title)}</h1>
+    <p class="lead">${esc(L.short)}</p>
+    <p><a class="cta-badge" href="${playUrl(`lang_${code}`)}" target="_blank" rel="noopener"><img src="/assets/google-play-badge.png" alt="Get it on Google Play" width="160" height="62"></a></p>
+${renderListingBody(L.full)}
+    <div class="cta">
+      <a class="cta-badge" href="${playUrl(`lang_${code}`)}" target="_blank" rel="noopener"><img src="/assets/google-play-badge.png" alt="Get it on Google Play" width="160" height="62"></a>
+    </div>
+  </div>
+</main>
+<footer class="site">
+  <div class="wrap">
+    <div class="foot-links">
+      <a href="/">English</a>
+      <a href="/privacy">Privacy</a>
+    </div>
+    <p class="muted">© 2026 SEPULKA S.R.L. · Bucharest, Romania · CUI 50254340 · <a href="mailto:contact@sepulka.cc">contact@sepulka.cc</a><br>Google Play and the Google Play logo are trademarks of Google LLC.</p>
+  </div>
+</footer>
+${cfBeacon}
+</body>
+</html>
+`;
+}
+
+let localeCount = 0;
+for (const code of LOCALES) {
+  if (code === 'en') continue; // English is the homepage
+  await mkdir(path.join(OUT, code), { recursive: true });
+  await writeFile(path.join(OUT, code, 'index.html'), localePage(code));
+  localeCount++;
+}
+console.log(`Wrote ${localeCount} localized landing pages`);
+
 await writeFile(path.join(OUT, 'robots.txt'),
   'User-agent: *\nAllow: /\n\nSitemap: https://shoutparty.com/sitemap.xml\n');
 await writeFile(path.join(OUT, 'sitemap.xml'),
@@ -559,6 +987,25 @@ await writeFile(path.join(OUT, 'sitemap.xml'),
   `    <lastmod>${today}</lastmod>\n` +
   '    <changefreq>monthly</changefreq>\n' +
   '    <priority>1.0</priority>\n' +
+  '  </url>\n' +
+  LOCALES.filter((c) => c !== 'en').map((c) =>
+    '  <url>\n' +
+    `    <loc>https://shoutparty.com/${c}/</loc>\n` +
+    `    <lastmod>${today}</lastmod>\n` +
+    '    <changefreq>monthly</changefreq>\n' +
+    '    <priority>0.7</priority>\n' +
+    '  </url>\n').join('') +
+  '  <url>\n' +
+  '    <loc>https://shoutparty.com/how-to-play-charades</loc>\n' +
+  `    <lastmod>${today}</lastmod>\n` +
+  '    <changefreq>monthly</changefreq>\n' +
+  '    <priority>0.8</priority>\n' +
+  '  </url>\n' +
+  '  <url>\n' +
+  '    <loc>https://shoutparty.com/charades-words</loc>\n' +
+  `    <lastmod>${today}</lastmod>\n` +
+  '    <changefreq>monthly</changefreq>\n' +
+  '    <priority>0.8</priority>\n' +
   '  </url>\n' +
   '  <url>\n' +
   '    <loc>https://shoutparty.com/privacy</loc>\n' +
