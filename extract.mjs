@@ -56,7 +56,7 @@ const CTA_LABEL = {
   hu: 'Alkalmazás letöltése', ro: 'Descarcă aplicația', bg: 'Изтегли приложението',
   hr: 'Preuzmi aplikaciju', sr: 'Преузми апликацију', sv: 'Hämta appen', da: 'Hent appen',
   no: 'Last ned appen', fi: 'Lataa sovellus', tr: 'Uygulamayı indir', he: 'הורדת האפליקציה',
-  hi: 'ऐप डाउनलोड करें', id: 'Unduh aplikasi', zh: '获取应用', ja: 'アプリを入手',
+  hi: 'ऐप डाउनलोड करें', id: 'Unduh aplikasi', zh: '下载应用', ja: 'アプリをダウンロード',
   ko: '앱 다운로드', ar: 'تنزيل التطبيق',
 };
 // Home URL for a locale: English lives at the site root, others at /<code>/.
