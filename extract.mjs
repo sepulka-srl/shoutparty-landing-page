@@ -46,6 +46,19 @@ const OG_LOCALE = {
   bg: 'bg_BG', hr: 'hr_HR', sr: 'sr_RS', sv: 'sv_SE', da: 'da_DK', no: 'nb_NO', fi: 'fi_FI',
   tr: 'tr_TR', he: 'he_IL', hi: 'hi_IN', id: 'id_ID', zh: 'zh_CN', ja: 'ja_JP', ko: 'ko_KR', ar: 'ar_AR',
 };
+// Localized label for the header Play button ("Get the app"), in each locale's
+// own script/territory (pt = European, zh = Simplified, sr = Cyrillic). Used as
+// both the visible text and the link's accessible name.
+const CTA_LABEL = {
+  ru: 'Установить приложение', uk: 'Встановити застосунок', de: 'App herunterladen',
+  fr: "Télécharger l'appli", es: 'Descargar la app', it: "Scarica l'app", pl: 'Pobierz aplikację',
+  pt: 'Transferir a app', nl: 'App downloaden', cs: 'Stáhnout aplikaci', sk: 'Stiahnuť aplikáciu',
+  hu: 'Alkalmazás letöltése', ro: 'Descarcă aplicația', bg: 'Изтегли приложението',
+  hr: 'Preuzmi aplikaciju', sr: 'Преузми апликацију', sv: 'Hämta appen', da: 'Hent appen',
+  no: 'Last ned appen', fi: 'Lataa sovellus', tr: 'Uygulamayı indir', he: 'הורדת האפליקציה',
+  hi: 'ऐप डाउनलोड करें', id: 'Unduh aplikasi', zh: '获取应用', ja: 'アプリを入手',
+  ko: '앱 다운로드', ar: 'تنزيل التطبيق',
+};
 // Home URL for a locale: English lives at the site root, others at /<code>/.
 const localeUrl = (code) => (code === 'en' ? 'https://shoutparty.com/' : `https://shoutparty.com/${code}/`);
 // Reciprocal hreflang set — identical (self-referencing) on every page, per spec.
@@ -633,8 +646,8 @@ const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, 
 // Header Play button — matches the homepage nav CTA (orange pill, play-triangle
 // icon + "Get the app"). `cta` is the utm_content tag threaded into the Play URL.
 const playIcon = '<svg width="14" height="16" viewBox="0 0 14 16" fill="none" aria-hidden="true"><path d="M1 1.2v13.6c0 .5.5.8.9.6L13 8.6c.4-.2.4-.8 0-1L1.9.6C1.5.4 1 .7 1 1.2z" fill="currentColor"></path></svg>';
-const navCta = (cta) =>
-  `<a class="nav-cta" href="${playUrl(cta)}" target="_blank" rel="noopener" aria-label="Get on Google Play">${playIcon} Get the app</a>`;
+const navCta = (cta, label = 'Get the app') =>
+  `<a class="nav-cta" href="${playUrl(cta)}" target="_blank" rel="noopener" aria-label="${esc(label)}">${playIcon} ${esc(label)}</a>`;
 
 // Full self-contained content page. `cta` is the utm_content tag for the Play CTA.
 function contentPage({ slug, title, description, h1, cta, jsonLd, body }) {
@@ -940,7 +953,7 @@ ${ldScript(appLdLocale)}
 <header class="site">
   <div class="wrap">
     <a class="logo" href="/"><span class="shout">SHOUT</span><span class="party">PARTY</span></a>
-    ${navCta(`lang_${code}`)}
+    ${navCta(`lang_${code}`, CTA_LABEL[code])}
   </div>
 </header>
 <main>
@@ -969,6 +982,7 @@ ${cfBeacon}
 let localeCount = 0;
 for (const code of LOCALES) {
   if (code === 'en') continue; // English is the homepage
+  if (!CTA_LABEL[code]) throw new Error(`CTA_LABEL missing for locale ${code}`);
   await mkdir(path.join(OUT, code), { recursive: true });
   await writeFile(path.join(OUT, code, 'index.html'), localePage(code));
   localeCount++;
