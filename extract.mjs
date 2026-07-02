@@ -740,7 +740,7 @@ const howToBody = `
     <h2>Popular charades variations</h2>
     <p>Half the fun is bending the rules. These are the variations groups reach for most — each one is also a built-in mode in Shout Party:</p>
     <ul>
-      <li><strong>Describe it (no gestures):</strong> instead of acting, describe the word out loud without saying the word itself or any part of it — the Taboo-style twist.</li>
+      <li><strong>Describe it (no gestures):</strong> instead of acting, describe the word out loud without saying the word itself or any part of it — the forbidden-word twist.</li>
       <li><strong>Speed round:</strong> a short per-word timer with an auto-skip, so teams blitz through as many words as they can.</li>
       <li><strong>Draw it:</strong> sketch the word instead of acting — no talking, no letters or numbers on the page.</li>
       <li><strong>One sentence only:</strong> you may say a single sentence to get your team there — choose it carefully.</li>
@@ -790,7 +790,7 @@ await writeFile(path.join(OUT, 'how-to-play-charades.html'), contentPage({
 const W = {
   easy: ['Chair', 'Dog', 'Pizza', 'Guitar', 'Ball', 'King', 'Tree', 'Rocket', 'Dress', 'Phone', 'Cake', 'Elephant', 'Movie', 'Mountain', 'Sword', 'Frog', 'Penguin', 'Book'],
   medium: ['Umbrella', 'Rehearsal', 'Substitute', 'Gladiator', 'Estuary', 'Platypus', 'Marinate', 'Itinerary', 'Cashmere', 'Spotlight', 'Chameleon', 'Kimchi', 'Tuxedo', 'Avalanche', 'Javelin', 'Screenplay'],
-  hard: ['Chandelier', 'Soliloquy', 'Decathlon', 'Mitochondria', 'Sarcophagus', 'Atoll', 'Pangolin', 'Charcuterie', 'Caravanserai', 'Jacquard', 'Denouement', 'Bioluminescence', 'Cuneiform', 'Umami', 'Vaudeville', 'Mirepoix'],
+  hard: ['Chandelier', 'Soliloquy', 'Decathlon', 'Mitochondria', 'Sarcophagus', 'Atoll', 'Velodrome', 'Charcuterie', 'Caravanserai', 'Jacquard', 'Denouement', 'Bioluminescence', 'Cuneiform', 'Umami', 'Vaudeville', 'Mirepoix'],
   animals: ['Dog', 'Cat', 'Elephant', 'Penguin', 'Octopus', 'Meerkat', 'Platypus', 'Chameleon', 'Narwhal', 'Pangolin', 'Armadillo', 'Crocodile'],
   food: ['Pizza', 'Cheese', 'Sushi', 'Cake', 'Burger', 'Marinate', 'Paella', 'Kimchi', 'Charcuterie', 'Umami', 'Tagine', 'Caramelise'],
   entertainment: ['Movie', 'Dance', 'Circus', 'Concert', 'Magic', 'Screenplay', 'Spotlight', 'Soundtrack', 'Pantomime', 'Cinematography', 'Puppet', 'Overture'],
@@ -801,7 +801,7 @@ const W = {
   kids: ['Dog', 'Cat', 'Cake', 'Ball', 'Tree', 'Elephant', 'Pizza', 'Rocket', 'Frog', 'Guitar', 'Penguin', 'Butterfly'],
 };
 const wordsBody = `
-    <p class="lead">Stuck for ideas? Here are hundreds of charades words, sorted by difficulty and by theme, all pulled straight from the Shout Party decks. Skim a list, pick your favourites, or use them as a warm-up before the real game. New to the game? Start with <a href="/how-to-play-charades">how to play charades</a>.</p>
+    <p class="lead">Stuck for ideas? Here is a hand-picked list of charades words, sorted by difficulty and by theme, all pulled straight from the Shout Party decks. Skim a list, pick your favourites, or use them as a warm-up before the real game. New to the game? Start with <a href="/how-to-play-charades">how to play charades</a>.</p>
 
     <h2>How to use these lists</h2>
     <ul>
@@ -850,7 +850,7 @@ const wordsLd = {
   '@context': 'https://schema.org',
   '@type': 'Article',
   headline: 'Charades words and ideas, sorted by difficulty and category',
-  description: 'Hundreds of charades words sorted by difficulty (easy, medium, hard) and by theme — animals, food, movies, sports and more, plus funny words for adults and easy words for kids.',
+  description: 'Charades words sorted by difficulty (easy, medium, hard) and by theme — animals, food, movies, sports and more, plus funny words for adults and easy words for kids.',
   author: { '@type': 'Organization', name: 'SEPULKA S.R.L.' },
   publisher: { '@type': 'Organization', name: 'SEPULKA S.R.L.' },
   mainEntityOfPage: 'https://shoutparty.com/charades-words',
@@ -858,7 +858,7 @@ const wordsLd = {
 await writeFile(path.join(OUT, 'charades-words.html'), contentPage({
   slug: 'charades-words',
   title: 'Charades Words and Ideas — Easy, Medium and Hard Lists | Shout Party',
-  description: 'Hundreds of charades words sorted by difficulty and category: easy words for kids, hard words for adults, plus animals, food, movies, sports and more.',
+  description: 'Charades words sorted by difficulty and category: easy words for kids, hard words for adults, plus animals, food, movies, sports and more.',
   h1: 'Charades words & ideas',
   cta: 'words',
   jsonLd: wordsLd,
