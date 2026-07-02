@@ -585,18 +585,19 @@ await writeFile(path.join(OUT, 'privacy.html'), PRIVACY_HTML);
 // and a Play CTA with a per-page utm_content tag. Registered in sitemap.xml and
 // linked from the homepage footer below.
 const CONTENT_CSS = `
-:root { --bg: #0A0A0F; --surface: #14141C; --text: #F4F4F8; --text-mute: #9A9AA8; --text-dim: #6A6A7A; --mint: #3FE5C2; --orange: #FF6B35; --peach: #F7C59F; --gold: #FFD166; --border: rgba(255,255,255,0.08); }
+:root { --bg: #0A0A0F; --surface: #161624; --text: #F4F4F8; --text-mute: #9A9AA8; --text-dim: #6A6A7A; --mint: #3FE5C2; --orange: #FF7A4D; --orange-light: #FFB89A; --peach: #F7C59F; --gold: #FFD166; --border: rgba(255,255,255,0.08); --gradient-shout: linear-gradient(90deg, #FF7A4D 0%, #FFB89A 100%); --gradient-party: linear-gradient(90deg, #3FE5C2 0%, #5AF0D2 100%); }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--text-mute); line-height: 1.7; -webkit-font-smoothing: antialiased; font-family: 'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
 a { color: var(--mint); text-decoration: none; }
 a:hover { text-decoration: underline; }
 .wrap { max-width: 820px; margin: 0 auto; padding: 0 24px; }
-header.site { border-bottom: 1px solid var(--border); }
-header.site .wrap { display: flex; align-items: center; justify-content: space-between; padding-top: 20px; padding-bottom: 20px; }
-.logo { font-weight: 800; letter-spacing: -0.01em; font-size: 20px; }
-.logo .shout { color: var(--orange); }
-.logo .party { color: var(--mint); }
-.nav-cta { font-weight: 600; color: var(--text); }
+header.site { position: sticky; top: 0; z-index: 50; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); background: rgba(10, 10, 15, 0.7); border-bottom: 1px solid var(--border); }
+header.site .wrap { display: flex; align-items: center; justify-content: space-between; padding-top: 18px; padding-bottom: 18px; }
+.logo { display: inline-flex; align-items: baseline; gap: 8px; font-weight: 800; letter-spacing: 0.04em; }
+.logo .shout { font-size: 22px; background: var(--gradient-shout); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.logo .party { font-size: 14px; color: var(--mint); letter-spacing: 0.2em; }
+.nav-cta { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; background: var(--orange); color: #1A0A04; border-radius: 999px; font-weight: 700; font-size: 14px; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+.nav-cta:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(255, 122, 77, 0.35); text-decoration: none; }
 main { padding: 56px 0 24px; }
 h1 { color: var(--text); font-size: clamp(30px, 6vw, 44px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.12; margin: 0 0 20px; }
 h2 { color: var(--text); font-size: 25px; font-weight: 700; letter-spacing: -0.01em; margin: 48px 0 14px; }
@@ -614,11 +615,10 @@ strong { color: var(--text); }
 .cta h2 { margin-top: 0; }
 .cta p { max-width: 520px; margin: 0 auto 22px; color: var(--text-mute); }
 .cta-badge img { display: inline-block; height: 62px; width: auto; }
-footer.site { border-top: 1px solid var(--border); margin-top: 64px; }
-footer.site .wrap { padding-top: 40px; padding-bottom: 64px; }
-.foot-links { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 20px; }
-.foot-links a { color: var(--text-mute); font-weight: 600; }
-.muted { color: var(--text-dim); font-size: 14px; line-height: 1.7; }
+footer.site { border-top: 1px solid var(--border); margin-top: 64px; padding: 36px 0; font-size: 13px; color: var(--text-dim); }
+.footer-inner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+.footer-inner a { color: inherit; }
+.footer-inner a:hover { color: var(--text); text-decoration: none; }
 `;
 
 // One word chip per entry.
@@ -629,6 +629,12 @@ const chips = (words) =>
 // plain text (so the JSON-LD below carries clean strings) and escaped here where
 // they land in markup.
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+// Header Play button — matches the homepage nav CTA (orange pill, play-triangle
+// icon + "Get the app"). `cta` is the utm_content tag threaded into the Play URL.
+const playIcon = '<svg width="14" height="16" viewBox="0 0 14 16" fill="none" aria-hidden="true"><path d="M1 1.2v13.6c0 .5.5.8.9.6L13 8.6c.4-.2.4-.8 0-1L1.9.6C1.5.4 1 .7 1 1.2z" fill="currentColor"></path></svg>';
+const navCta = (cta) =>
+  `<a class="nav-cta" href="${playUrl(cta)}" target="_blank" rel="noopener" aria-label="Get on Google Play">${playIcon} Get the app</a>`;
 
 // Full self-contained content page. `cta` is the utm_content tag for the Play CTA.
 function contentPage({ slug, title, description, h1, cta, jsonLd, body }) {
@@ -673,7 +679,7 @@ ${ld.map((o) => ldScript(o)).join('\n')}
 <header class="site">
   <div class="wrap">
     <a class="logo" href="/"><span class="shout">SHOUT</span><span class="party">PARTY</span></a>
-    <a class="nav-cta" href="${playUrl(cta)}" target="_blank" rel="noopener">Get on Google Play</a>
+    ${navCta(cta)}
   </div>
 </header>
 <main>
@@ -688,14 +694,9 @@ ${body}
   </div>
 </main>
 <footer class="site">
-  <div class="wrap">
-    <div class="foot-links">
-      <a href="/">Home</a>
-      <a href="/how-to-play-charades">How to play charades</a>
-      <a href="/charades-words">Charades words</a>
-      <a href="/privacy">Privacy</a>
-    </div>
-    <p class="muted">© 2026 SEPULKA S.R.L. · Bucharest, Romania · CUI 50254340 · <a href="mailto:contact@sepulka.cc">contact@sepulka.cc</a><br>Google Play and the Google Play logo are trademarks of Google LLC.</p>
+  <div class="wrap footer-inner">
+    <div class="logo"><span class="shout">SHOUT</span><span class="party">PARTY</span></div>
+    <div><a href="/how-to-play-charades">How to play charades</a> · <a href="/charades-words">Charades words</a><br>© 2026 SEPULKA S.R.L. · Bucharest, Romania · CUI 50254340 · <a href="mailto:contact@sepulka.cc">contact@sepulka.cc</a> · <a href="/privacy">Privacy</a><br>Google Play and the Google Play logo are trademarks of Google LLC.</div>
   </div>
 </footer>
 ${cfBeacon}
@@ -939,7 +940,7 @@ ${ldScript(appLdLocale)}
 <header class="site">
   <div class="wrap">
     <a class="logo" href="/"><span class="shout">SHOUT</span><span class="party">PARTY</span></a>
-    <a class="nav-cta" href="${playUrl(`lang_${code}`)}" target="_blank" rel="noopener">Google Play</a>
+    ${navCta(`lang_${code}`)}
   </div>
 </header>
 <main>
@@ -954,12 +955,9 @@ ${renderListingBody(L.full)}
   </div>
 </main>
 <footer class="site">
-  <div class="wrap">
-    <div class="foot-links">
-      <a href="/">English</a>
-      <a href="/privacy">Privacy</a>
-    </div>
-    <p class="muted">© 2026 SEPULKA S.R.L. · Bucharest, Romania · CUI 50254340 · <a href="mailto:contact@sepulka.cc">contact@sepulka.cc</a><br>Google Play and the Google Play logo are trademarks of Google LLC.</p>
+  <div class="wrap footer-inner">
+    <div class="logo"><span class="shout">SHOUT</span><span class="party">PARTY</span></div>
+    <div><a href="/">English</a><br>© 2026 SEPULKA S.R.L. · Bucharest, Romania · CUI 50254340 · <a href="mailto:contact@sepulka.cc">contact@sepulka.cc</a> · <a href="/privacy">Privacy</a><br>Google Play and the Google Play logo are trademarks of Google LLC.</div>
   </div>
 </footer>
 ${cfBeacon}
