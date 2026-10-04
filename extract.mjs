@@ -213,6 +213,13 @@ template = template.replace(
 // here as template transforms (plus the file writes below) rather than being
 // hand-edited into docs/index.html. Rationale: docs/site_seo_suggestions.md.
 
+// Favicon set: the app icon (static/favicon.svg, artwork from the app repo's
+// docs/store_listings/app_icon/). Copied to the site root further down and
+// linked from every page.
+const FAVICON_LINKS = `<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">`;
+
 // Canonical + Open Graph + Twitter Card, injected after the description meta.
 // og:image is the share card authored in static/og-image.svg and copied into
 // docs/assets/ further down.
@@ -220,6 +227,7 @@ const DESC_META = '<meta name="description" content="Shout Party is the word-gue
 if (!template.includes(DESC_META)) throw new Error('description meta not found — bundle head changed');
 template = template.replace(DESC_META, DESC_META + `
 <link rel="canonical" href="https://shoutparty.com/">
+${FAVICON_LINKS}
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Shout Party">
 <meta property="og:title" content="Shout Party — The word-guessing party game">
@@ -228,13 +236,13 @@ template = template.replace(DESC_META, DESC_META + `
 <meta property="og:image" content="https://shoutparty.com/assets/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Shout Party — neon party-game wordmark">
+<meta property="og:image:alt" content="Shout Party — app icon and neon wordmark">
 <meta property="og:locale" content="en_US">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Shout Party — The word-guessing party game">
 <meta name="twitter:description" content="Six game modes, 1,500 words per language, 29 languages. Free on Google Play — no ads, no accounts, plays offline.">
 <meta name="twitter:image" content="https://shoutparty.com/assets/og-image.png">
-<meta name="twitter:image:alt" content="Shout Party — neon party-game wordmark">
+<meta name="twitter:image:alt" content="Shout Party — app icon and neon wordmark">
 ${hreflangSet}`);
 
 // Descriptive image alt text for the screenshot strip (was "Home", "Teams"…).
@@ -514,6 +522,11 @@ await writeFile(path.join(ASSETS, 'Manrope-OFL.txt'), MANROPE_OFL);
 // under docs/ directly.
 await copyFile(path.join(STATIC, 'og-image.png'), path.join(ASSETS, 'og-image.png'));
 
+// Favicon set, served from the site root (see FAVICON_LINKS above).
+for (const f of ['favicon.svg', 'favicon-96.png', 'apple-touch-icon.png']) {
+  await copyFile(path.join(STATIC, f), path.join(OUT, f));
+}
+
 // Official "Get it on Google Play" badge artwork (Google brand guidelines require
 // the official badge, not a recreation). Committed in static/, copied in like
 // og-image because docs/ is wiped each run.
@@ -540,6 +553,7 @@ const PRIVACY_HTML = `<!DOCTYPE html>
 <title>Privacy — Shout Party</title>
 <meta name="description" content="Privacy notice for the shoutparty.com website: what the site measures with Cloudflare Web Analytics, and why no cookies or consent banner are used.">
 <link rel="canonical" href="https://shoutparty.com/privacy">
+${FAVICON_LINKS}
 <meta name="robots" content="index, follow">
 <style>
 :root { --bg: #0A0A0F; --text: #F4F4F8; --text-mute: #9A9AA8; --text-dim: #6A6A7A; --mint: #3FE5C2; --border: rgba(255, 255, 255, 0.08); }
@@ -673,6 +687,7 @@ function contentPage({ slug, title, description, h1, cta, jsonLd, body }) {
 <title>${t}</title>
 <meta name="description" content="${d}">
 <link rel="canonical" href="${url}">
+${FAVICON_LINKS}
 <meta name="robots" content="index, follow">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Shout Party">
@@ -932,6 +947,7 @@ function localePage(code) {
 <title>${esc(L.title)}</title>
 <meta name="description" content="${esc(L.short)}">
 <link rel="canonical" href="${url}">
+${FAVICON_LINKS}
 <meta name="robots" content="index, follow">
 ${hreflangSet}
 <meta property="og:type" content="website">

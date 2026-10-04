@@ -35,16 +35,23 @@
   <circle cx="60"  cy="170" r="4"   fill="#FFFFFF" opacity="0.35"/>
   <circle cx="1140" cy="330" r="4"  fill="#FFFFFF" opacity="0.3"/>
   <rect x="240" y="70" width="14" height="14" rx="3" fill="#3FE5C2" opacity="0.7" transform="rotate(24 247 77)"/>
-  <rect x="930" y="150" width="16" height="16" rx="3" fill="#FF3B6B" opacity="0.65" transform="rotate(-18 938 158)"/>
+  <rect x="1096" y="104" width="16" height="16" rx="3" fill="#FF3B6B" opacity="0.65" transform="rotate(-18 1104 112)"/>
   <rect x="200" y="470" width="15" height="15" rx="3" fill="#FF7A4D" opacity="0.6" transform="rotate(32 207 477)"/>
 
+  <!-- App icon (artwork from the app repo: docs/store_listings/app_icon/icon_play.svg) -->
+  <clipPath id="iconClip"><rect width="512" height="512" rx="112"/></clipPath>
+  <g transform="translate(92 112) scale(0.6055)">
+    <rect x="-6" y="-6" width="524" height="524" rx="118" fill="#FFFFFF" fill-opacity="0.10"/>
+    <g clip-path="url(#iconClip)"><defs><radialGradient id="iconBg" cx="50%" cy="42%" r="62%"><stop offset="0" stop-color="#FF9A4D"/><stop offset=".55" stop-color="#F06414"/><stop offset="1" stop-color="#B02C02"/></radialGradient></defs><rect width="512" height="512" fill="url(#iconBg)"/><g transform="translate(256 256) rotate(0) scale(1) translate(-256 -256)"><g transform="translate(-5 -7) rotate(0) scale(1) translate(0 0)"><g transform="translate(11 15) rotate(0) scale(1) translate(0 0)"><path d="M479.2,291.4 L403.9,331.4 L415.8,415.8 L331.4,403.9 L291.4,479.2 L230.0,420.0 L153.4,457.4 L138.6,373.4 L54.6,358.6 L92.0,282.0 L32.8,220.6 L108.1,180.6 L96.2,96.2 L180.6,108.1 L220.6,32.8 L282.0,92.0 L358.6,54.6 L373.4,138.6 L457.4,153.4 L420.0,230.0 Z" fill="#8A2200" stroke="#8A2200" stroke-width="14" stroke-linejoin="round"/></g><path d="M479.2,291.4 L403.9,331.4 L415.8,415.8 L331.4,403.9 L291.4,479.2 L230.0,420.0 L153.4,457.4 L138.6,373.4 L54.6,358.6 L92.0,282.0 L32.8,220.6 L108.1,180.6 L96.2,96.2 L180.6,108.1 L220.6,32.8 L282.0,92.0 L358.6,54.6 L373.4,138.6 L457.4,153.4 L420.0,230.0 Z" fill="#00F5D4" stroke="#00F5D4" stroke-width="14" stroke-linejoin="round"/><g transform="translate(256 256) rotate(-7) scale(1) translate(-256 -256)"><g transform="translate(10 14) rotate(0) scale(1) translate(0 0)"><path d="M146,306 L112,398 L226,330 Z" fill="#1A1A2E" stroke="#1A1A2E" stroke-width="16" stroke-linejoin="round"/><path d="M184,126 H328 A84,84 0 0 1 412,210 V264 A84,84 0 0 1 328,348 H184 A84,84 0 0 1 100,264 V210 A84,84 0 0 1 184,126 Z" fill="#1A1A2E"/></g><path d="M146,306 L112,398 L226,330 Z" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="16" stroke-linejoin="round"/><path d="M184,126 H328 A84,84 0 0 1 412,210 V264 A84,84 0 0 1 328,348 H184 A84,84 0 0 1 100,264 V210 A84,84 0 0 1 184,126 Z" fill="#FFFFFF"/><g transform="translate(256 246) rotate(0) scale(0.9) translate(-264 -226)"><g transform="translate(214 216) rotate(0) scale(1) translate(0 0)"><path d="M-36,-34 a38,38 0 1 1 58,32 q-22,14 -22,40" fill="none" stroke="#1A1A2E" stroke-width="36" stroke-linejoin="round" stroke-linecap="round"/><path d="M-22.3,84 a22.3,22.3 0 1 0 44.6,0 a22.3,22.3 0 1 0 -44.6,0 Z" fill="#1A1A2E"/></g><g transform="translate(318 216) rotate(0) scale(1) translate(0 0)"><path d="M-19,-74 L19,-74 L11,44 L-11,44 Z" fill="#F0560A" stroke="#F0560A" stroke-width="10" stroke-linejoin="round"/><path d="M-19,84 a19,19 0 1 0 38,0 a19,19 0 1 0 -38,0 Z" fill="#F0560A"/></g></g></g></g></g></g>
+  </g>
+
   <!-- Wordmark -->
-  <text x="600" y="296" text-anchor="middle"
+  <text x="452" y="252" text-anchor="start"
         font-family="Helvetica, Arial, sans-serif" font-weight="800"
-        font-size="184" letter-spacing="2" fill="url(#gShout)">SHOUT</text>
-  <text x="608" y="452" text-anchor="middle"
+        font-size="160" letter-spacing="2" fill="url(#gShout)">SHOUT</text>
+  <text x="456" y="396" text-anchor="start"
         font-family="Helvetica, Arial, sans-serif" font-weight="800"
-        font-size="184" letter-spacing="22" fill="url(#gParty)">PARTY</text>
+        font-size="160" letter-spacing="19" fill="url(#gParty)">PARTY</text>
 
   <!-- Tagline -->
   <text x="600" y="534" text-anchor="middle"
