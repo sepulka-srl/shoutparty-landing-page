@@ -256,7 +256,7 @@ for (const [from, to] of [
 // defined once and drive both, so the structured data can't drift from copy.
 const FAQ = [
   ['Is Shout Party free?',
-   'Yes — Shout Party is free on Google Play. There are no ads and no in-app purchases.'],
+   'Yes — Shout Party is free on Google Play, with no ads. Optional themed word packs can be bought in the app.'],
   ['Do I need an internet connection to play?',
    'No. Shout Party plays fully offline after installation; the word decks live on your device.'],
   ['How many players do I need?',
