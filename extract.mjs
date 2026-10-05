@@ -67,6 +67,32 @@ const hreflangSet = [
   '<link rel="alternate" hreflang="x-default" href="https://shoutparty.com/">',
 ].join('\n');
 
+// --- Localized word-list pages (/<code>/words/) ------------------------------
+// Word samples and their difficulty/category headings come from the app itself
+// (l10n/words.json, built by l10n/build_words.py from each language's shipping
+// dictionary and in-app labels). The only text written for these pages is the
+// page heading below; the intro paragraph is the store listing's own dictionary
+// section, reused verbatim.
+const WORDS = JSON.parse(await readFile(path.join(ROOT, 'l10n', 'words.json'), 'utf8'));
+const WORDS_H1 = {
+  ru: 'Слова для шарад', uk: 'Слова для шарад', de: 'Begriffe für Scharade und Pantomime',
+  fr: 'Mots à mimer et à faire deviner', es: 'Palabras para jugar a la mímica',
+  it: 'Parole da mimare e indovinare', pl: 'Hasła do kalamburów', pt: 'Palavras para jogar à mímica',
+  nl: 'Woorden voor Hints', cs: 'Slova na šarády a pantomimu', sk: 'Slová na šarády a pantomímu',
+  hu: 'Szavak pantomimhez', ro: 'Cuvinte pentru mimă și șarade', bg: 'Думи за шаради и асоциации',
+  hr: 'Pojmovi za pantomimu', sr: 'Појмови за пантомиму', sv: 'Ord till charader',
+  da: 'Ord til gæt og grimasser', no: 'Ord til mimelek og charader', fi: 'Sanoja pantomiimiin',
+  tr: 'Sessiz sinema için kelimeler', he: 'מילים לפנטומימה', hi: 'डम्ब शराड्स के लिए शब्द',
+  id: 'Kata-kata untuk permainan tebak kata', zh: '比手画脚词语', ja: 'ジェスチャーゲームのお題',
+  ko: '제스처 게임 단어', ar: 'كلمات للعبة التمثيل الصامت',
+};
+const wordsUrl = (code) =>
+  (code === 'en' ? 'https://shoutparty.com/charades-words' : `https://shoutparty.com/${code}/words/`);
+const wordsHreflangSet = [
+  ...LOCALES.map((c) => `<link rel="alternate" hreflang="${c}" href="${wordsUrl(c)}">`),
+  '<link rel="alternate" hreflang="x-default" href="https://shoutparty.com/charades-words">',
+].join('\n');
+
 function pickScript(type) {
   const re = new RegExp(`<script[^>]*type="${type}"[^>]*>([\\s\\S]*?)</script>`, 'i');
   const m = html.match(re);
@@ -665,7 +691,7 @@ const navCta = (cta, label = 'Get the app') =>
   `<a class="nav-cta" href="${playUrl(cta)}" target="_blank" rel="noopener" aria-label="${esc(label)}">${playIcon} ${esc(label)}</a>`;
 
 // Full self-contained content page. `cta` is the utm_content tag for the Play CTA.
-function contentPage({ slug, title, description, h1, cta, jsonLd, body }) {
+function contentPage({ slug, title, description, h1, cta, jsonLd, body, head = '' }) {
   const url = `https://shoutparty.com/${slug}`;
   const [t, d, h] = [esc(title), esc(description), esc(h1)];
   const ld = [
@@ -688,7 +714,7 @@ function contentPage({ slug, title, description, h1, cta, jsonLd, body }) {
 <meta name="description" content="${d}">
 <link rel="canonical" href="${url}">
 ${FAVICON_LINKS}
-<meta name="robots" content="index, follow">
+<meta name="robots" content="index, follow">${head && `\n${head}`}
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Shout Party">
 <meta property="og:title" content="${t}">
@@ -893,6 +919,7 @@ await writeFile(path.join(OUT, 'charades-words.html'), contentPage({
   cta: 'words',
   jsonLd: wordsLd,
   body: wordsBody,
+  head: wordsHreflangSet,
 }));
 
 // --- Localized landing pages (/<code>/) -------------------------------------
@@ -979,6 +1006,7 @@ ${ldScript(appLdLocale)}
     <p class="lead">${esc(L.short)}</p>
     <p><a class="cta-badge" href="${playUrl(`lang_${code}`)}" target="_blank" rel="noopener"><img src="/assets/google-play-badge.png" alt="Get it on Google Play" width="160" height="62"></a></p>
 ${renderListingBody(L.full)}
+    <p><a href="/${code}/words/">${esc(WORDS_H1[code])} →</a></p>
     <div class="cta">
       <a class="cta-badge" href="${playUrl(`lang_${code}`)}" target="_blank" rel="noopener"><img src="/assets/google-play-badge.png" alt="Get it on Google Play" width="160" height="62"></a>
     </div>
@@ -996,15 +1024,102 @@ ${cfBeacon}
 `;
 }
 
+// The store listing's dictionary section ("29 languages, 1500 words each"): its
+// one paragraph introduces the word lists in the listing's own, approved words.
+function dictionaryParagraph(code) {
+  const section = LISTINGS[code].full.split('\n\n').filter((s) => s.startsWith('✦') && s.split('\n')[0].includes('29'));
+  if (section.length !== 1 || section[0].split('\n').length !== 2) {
+    throw new Error(`Dictionary section not found in the ${code} listing`);
+  }
+  return section[0].split('\n')[1];
+}
+
+function localizedWordsPage(code) {
+  const L = LISTINGS[code];
+  const W = WORDS[code];
+  const h1 = WORDS_H1[code];
+  const url = wordsUrl(code);
+  const dir = RTL.has(code) ? ' dir="rtl"' : '';
+  const title = `${h1} | Shout Party`;
+  const description = `${h1}: ${W.categories.map((c) => c.name).join(', ')}.`;
+  const groups = [...W.difficulties, ...W.categories]
+    .map((g) => `    <h2>${esc(g.name)}</h2>\n    ${chips(g.words.map(esc))}`)
+    .join('\n');
+  const breadcrumbs = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Shout Party', item: localeUrl(code) },
+      { '@type': 'ListItem', position: 2, name: h1, item: url },
+    ],
+  };
+  return `<!DOCTYPE html>
+<html lang="${code}"${dir}>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${esc(title)}</title>
+<meta name="description" content="${esc(description)}">
+<link rel="canonical" href="${url}">
+${FAVICON_LINKS}
+<meta name="robots" content="index, follow">
+${wordsHreflangSet}
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Shout Party">
+<meta property="og:title" content="${esc(title)}">
+<meta property="og:description" content="${esc(description)}">
+<meta property="og:url" content="${url}">
+<meta property="og:image" content="https://shoutparty.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="${OG_LOCALE[code]}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${esc(title)}">
+<meta name="twitter:description" content="${esc(description)}">
+<meta name="twitter:image" content="https://shoutparty.com/assets/og-image.png">
+<style>${CONTENT_CSS}</style>
+${ldScript(breadcrumbs)}
+</head>
+<body>
+<header class="site">
+  <div class="wrap">
+    <a class="logo" href="/${code}/"><span class="shout">SHOUT</span><span class="party">PARTY</span></a>
+    ${navCta(`words_${code}`, CTA_LABEL[code])}
+  </div>
+</header>
+<main>
+  <div class="wrap">
+    <h1>${esc(h1)}</h1>
+    <p class="lead">${esc(dictionaryParagraph(code))}</p>
+${groups}
+    <div class="cta">
+      <a class="cta-badge" href="${playUrl(`words_${code}`)}" target="_blank" rel="noopener"><img src="/assets/google-play-badge.png" alt="Get it on Google Play" width="160" height="62"></a>
+    </div>
+  </div>
+</main>
+<footer class="site">
+  <div class="wrap footer-inner">
+    <div class="logo"><span class="shout">SHOUT</span><span class="party">PARTY</span></div>
+    <div><a href="/${code}/">${esc(L.title)}</a> · <a href="/charades-words">English</a><br>© 2026 SEPULKA S.R.L. · Bucharest, Romania · CUI 50254340 · <a href="mailto:contact@sepulka.cc">contact@sepulka.cc</a> · <a href="/privacy">Privacy</a><br>Google Play and the Google Play logo are trademarks of Google LLC.</div>
+  </div>
+</footer>
+${cfBeacon}
+</body>
+</html>
+`;
+}
+
 let localeCount = 0;
 for (const code of LOCALES) {
   if (code === 'en') continue; // English is the homepage
   if (!CTA_LABEL[code]) throw new Error(`CTA_LABEL missing for locale ${code}`);
-  await mkdir(path.join(OUT, code), { recursive: true });
+  if (!WORDS_H1[code] || !WORDS[code]) throw new Error(`Word-list data missing for locale ${code}`);
+  await mkdir(path.join(OUT, code, 'words'), { recursive: true });
   await writeFile(path.join(OUT, code, 'index.html'), localePage(code));
+  await writeFile(path.join(OUT, code, 'words', 'index.html'), localizedWordsPage(code));
   localeCount++;
 }
-console.log(`Wrote ${localeCount} localized landing pages`);
+console.log(`Wrote ${localeCount} localized landing pages and ${localeCount} word-list pages`);
 
 await writeFile(path.join(OUT, 'robots.txt'),
   'User-agent: *\nAllow: /\n\nSitemap: https://shoutparty.com/sitemap.xml\n');
@@ -1023,6 +1138,13 @@ await writeFile(path.join(OUT, 'sitemap.xml'),
     `    <lastmod>${today}</lastmod>\n` +
     '    <changefreq>monthly</changefreq>\n' +
     '    <priority>0.7</priority>\n' +
+    '  </url>\n').join('') +
+  LOCALES.filter((c) => c !== 'en').map((c) =>
+    '  <url>\n' +
+    `    <loc>${wordsUrl(c)}</loc>\n` +
+    `    <lastmod>${today}</lastmod>\n` +
+    '    <changefreq>monthly</changefreq>\n' +
+    '    <priority>0.6</priority>\n' +
     '  </url>\n').join('') +
   '  <url>\n' +
   '    <loc>https://shoutparty.com/how-to-play-charades</loc>\n' +
